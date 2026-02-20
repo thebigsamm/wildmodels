@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { SiteHeader } from "@/components/SiteHeader";
 
 type Profile = {
   id: string;
@@ -61,7 +62,9 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
     p.whatsapp ? (showContact ? p.whatsapp : maskPhone(p.whatsapp)) : null;
 
   return (
-    <main className="p-6">
+    <main className="min-h-screen bg-white">
+      <SiteHeader />
+      <div className="mx-auto max-w-5xl px-6 py-8">
       <Link className="underline" href="/browse">
         ← Back to Browse
       </Link>
@@ -139,6 +142,7 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
             </p>
           </div>
         </div>
+      </div>
       </div>
     </main>
   );

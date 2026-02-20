@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { SiteHeader } from "@/components/SiteHeader";
 
 type Profile = {
   id: string;
@@ -200,7 +201,9 @@ export default function Page() {
   }
 
   return (
-    <main className="p-6">
+    <main className="min-h-screen bg-white">
+      <SiteHeader />
+      <div className="mx-auto max-w-5xl px-6 py-8">
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <h1 className="text-2xl font-semibold">Browse</h1>
         <div className="flex gap-3">
@@ -208,7 +211,6 @@ export default function Page() {
           <Link className="underline" href="/">Home</Link>
         </div>
       </div>
-
       <div className="mt-5 grid gap-3 lg:grid-cols-3">
         <div className="border rounded-xl p-4 lg:col-span-3">
           <div className="text-sm font-medium">AI Search (v1)</div>
@@ -295,35 +297,55 @@ export default function Page() {
       ) : null}
 
       {!loading && !errorMsg ? (
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((p) => (
             <Link
               key={p.id}
               href={`/profile/${p.id}`}
-              className="border rounded-xl overflow-hidden hover:shadow-sm transition"
+              className="group overflow-hidden rounded-2xl border border-black/10 bg-white shadow-sm transition hover:shadow-md"
             >
-              <div className="aspect-[4/3] bg-gray-100">
+              <div className="aspect-[4/3] bg-gray-100 overflow-hidden">
                 {p.photo_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={p.photo_url} alt={p.display_name} className="h-full w-full object-cover" />
+                  <img
+                    src={p.photo_url}
+                    alt={p.display_name}
+                    className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
+                  />
                 ) : (
-                  <div className="h-full w-full grid place-items-center text-gray-500">No photo</div>
+                  <div className="h-full w-full grid place-items-center text-sm text-black/50">
+                    No photo
+                  </div>
                 )}
               </div>
 
-              <div className="p-3">
-                <div className="font-medium">
-                  {p.display_name} • {p.age}
+              <div className="p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="font-medium text-black">
+                    {p.display_name}
+                  </div>
+                  <div className="text-sm text-black/60">{p.age}</div>
                 </div>
-                <div className="text-sm text-gray-600">
+
+                <div className="mt-1 text-sm text-black/60">
                   {p.city}, {p.area}
                 </div>
-                {p.bio ? <div className="text-sm mt-2 line-clamp-2">{p.bio}</div> : null}
+
+                {p.bio ? (
+                  <div className="mt-3 text-sm text-black/70 line-clamp-2">
+                    {p.bio}
+                  </div>
+                ) : null}
+
+                <div className="mt-4 text-xs text-black/50">
+                  View profile →
+                </div>
               </div>
             </Link>
           ))}
         </div>
       ) : null}
+      </div>
     </main>
   );
 }

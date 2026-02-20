@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { SiteHeader } from "@/components/SiteHeader";
 
 export default function CreateProfilePage() {
   const [loading, setLoading] = useState(false);
@@ -72,7 +73,9 @@ export default function CreateProfilePage() {
 }
 
   return (
-    <main className="p-6 max-w-xl">
+    <main className="min-h-screen bg-white">
+      <SiteHeader />
+      <div className="mx-auto max-w-3xl px-6 py-8">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Create Profile</h1>
         <Link className="underline" href="/">Home</Link>
@@ -164,6 +167,7 @@ export default function CreateProfilePage() {
         <p className="text-xs text-gray-500 mt-2">
           By submitting, you confirm you’re 18+ and consent to your profile being listed publicly after approval.
         </p>
+      </div>
       </div>
     </main>
   );
