@@ -18,77 +18,58 @@ export default function CreateProfilePage() {
   const [photoUrl, setPhotoUrl] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [telegram, setTelegram] = useState("");
+  const [photoFiles, setPhotoFiles] = useState<File[]>([]);
 
   async function submit() {
-    setMsg(null);
+  setMsg(null);
 
-    // tiny validation
-    if (!displayName.trim()) return setMsg("Please enter a display name.");
-    if (!city.trim()) return setMsg("Please enter a city (e.g., Lagos).");
-    if (!area.trim()) return setMsg("Please enter an area (e.g., Lekki).");
-    if (age < 18) return setMsg("You must be 18+.");
+  if (!displayName.trim()) return setMsg("Please enter a display name.");
+  if (!city.trim()) return setMsg("Please enter a city (e.g., Lagos).");
+  if (!area.trim()) return setMsg("Please enter an area (e.g., Lekki).");
+  if (age < 18) return setMsg("You must be 18+.");
+  if (photoFiles.length < 1) return setMsg("Upload at least 1 photo.");
+  if (photoFiles.length > 5) return setMsg("Max 5 photos.");
 
-    setLoading(true);
-    
-let uploadedPhotoUrl: string | null = null;
+  // Client-side safety (server also enforces)
+  const total = photoFiles.reduce((s, f) => s + f.size, 0);
+  if (photoFiles.some((f) => f.size > 2 * 1024 * 1024)) return setMsg("Each photo must be 2MB max.");
+  if (total > 10 * 1024 * 1024) return setMsg("Total upload must be 10MB max.");
 
-if (photoFile) {
-  const ext = photoFile.name.split(".").pop() || "jpg";
-  const fileName = `${crypto.randomUUID()}.${ext}`;
-  const filePath = `main/${fileName}`;
+  setLoading(true);
 
-  const { error: uploadError } = await supabase.storage
-    .from("profile-photos")
-    .upload(filePath, photoFile, {
-      cacheControl: "3600",
-      upsert: false,
-    });
+  const fd = new FormData();
+  fd.append("display_name", displayName.trim());
+  fd.append("gender", gender);
+  fd.append("age", String(age));
+  fd.append("city", city.trim());
+  fd.append("area", area.trim());
+  fd.append("bio", bio.trim());
+  if (whatsapp.trim()) fd.append("whatsapp", whatsapp.trim());
+  if (telegram.trim()) fd.append("telegram", telegram.trim());
 
-  if (uploadError) {
-    setLoading(false);
-    setMsg(`Photo upload failed: ${uploadError.message}`);
+  for (const f of photoFiles) fd.append("photos", f);
+
+  const res = await fetch("/api/profiles/submit", { method: "POST", body: fd });
+  const data = await res.json();
+
+  setLoading(false);
+
+  if (!res.ok) {
+    setMsg(`Error: ${data.error || "Failed"}`);
     return;
   }
 
-  const { data } = supabase.storage.from("profile-photos").getPublicUrl(filePath);
-  uploadedPhotoUrl = data.publicUrl;
+  setMsg("Submitted ✅ Your profile is pending approval.");
+  setDisplayName("");
+  setGender("female");
+  setAge(18);
+  setCity("");
+  setArea("");
+  setBio("");
+  setWhatsapp("");
+  setTelegram("");
+  setPhotoFiles([]);
 }
-
-    const { error } = await supabase.from("profiles").insert([
-      {
-        display_name: displayName.trim(),
-        gender,
-        age,
-        city: city.trim(),
-        area: area.trim(),
-        bio: bio.trim(),
-        photo_url: uploadedPhotoUrl,
-        whatsapp: whatsapp.trim() || null,
-        telegram: telegram.trim() || null,
-        is_active: true,
-        status: "pending",
-      },
-    ]);
-
-    setLoading(false);
-
-    if (error) {
-      setMsg(`Error: ${error.message}`);
-      return;
-    }
-
-    setMsg("Submitted ✅ Your profile is pending approval.");
-    // clear form
-    setDisplayName("");
-    setGender("female");
-    setAge(18);
-    setCity("");
-    setArea("");
-    setBio("");
-    setPhotoUrl("");
-    setWhatsapp("");
-    setTelegram("");
-  }
 
   return (
     <main className="p-6 max-w-xl">
@@ -152,7 +133,11 @@ if (photoFile) {
             className="border rounded p-2"
             type="file"
             accept="image/*"
-            onChange={(e) => setPhotoFile(e.target.files?.[0] ?? null)}
+            multiple
+            onChange={(e) => {
+              const list = Array.from(e.target.files ?? []);
+              setPhotoFiles(list.slice(0, 5));
+           }}
           />
         </label>
 

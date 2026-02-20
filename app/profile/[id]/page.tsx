@@ -27,6 +27,9 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
   const [p, setP] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [showContact, setShowContact] = useState(false);
+  const [photos, setPhotos] = useState<string[]>([]);
+
+  
 
   useEffect(() => {
     (async () => {
@@ -40,6 +43,14 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
 
       if (!error && data) setP(data as Profile);
       setLoading(false);
+
+      const { data: ph } = await supabase
+        .from("profile_photos")
+        .select("url, sort_order")
+        .eq("profile_id", params.id)
+        .order("sort_order", { ascending: true });
+
+      setPhotos((ph ?? []).map((x: any) => x.url));
     })();
   }, [params.id]);
 
@@ -56,17 +67,17 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
       </Link>
 
       <div className="mt-4 grid gap-6 lg:grid-cols-2">
-        <div className="rounded-xl overflow-hidden bg-gray-100 aspect-[4/3]">
-          {p.photo_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={p.photo_url}
-              alt={p.display_name}
-              className="h-full w-full object-cover"
-            />
+        <div className="grid grid-cols-2 gap-2">
+          {photos.length ? (
+            photos.map((u) => (
+              <div key={u} className="rounded-xl overflow-hidden bg-gray-100 aspect-[4/3]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={u} alt="photo" className="h-full w-full object-cover" />
+              </div>
+            ))
           ) : (
-            <div className="h-full w-full grid place-items-center text-gray-500">
-              No photo
+            <div className="rounded-xl overflow-hidden bg-gray-100 aspect-[4/3] grid place-items-center text-gray-500">
+              No photos
             </div>
           )}
         </div>
