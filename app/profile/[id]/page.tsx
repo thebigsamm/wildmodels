@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { SiteHeader } from "@/components/SiteHeader";
+import { Button } from "@/components/Button";
+import { useParams } from "next/navigation";
 
 type Profile = {
   id: string;
@@ -24,21 +26,28 @@ function maskPhone(s: string) {
   return clean.slice(0, 4) + "***" + clean.slice(-2);
 }
 
-export default function ProfilePage({ params }: { params: { id: string } }) {
+export default function ProfilePage() {
   const [p, setP] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [showContact, setShowContact] = useState(false);
   const [photos, setPhotos] = useState<string[]>([]);
 
-  
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportReason, setReportReason] = useState("Spam/Fake");
+  const [reportDetails, setReportDetails] = useState("");
+  const [reportMsg, setReportMsg] = useState<string | null>(null);
+
+  const params = useParams<{ id: string }>();
+  const id = params?.id;
 
   useEffect(() => {
+    if (!id) return;
     (async () => {
       setLoading(true);
       const { data, error } = await supabase
         .from("profiles")
         .select("id, display_name, gender, age, city, area, bio, photo_url, whatsapp, telegram")
-        .eq("id", params.id)
+        .eq("id", id)
         .eq("is_active", true)
         .single();
 
@@ -48,14 +57,36 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
       const { data: ph } = await supabase
         .from("profile_photos")
         .select("url, sort_order")
-        .eq("profile_id", params.id)
+        .eq("profile_id", id)
         .order("sort_order", { ascending: true });
 
       setPhotos((ph ?? []).map((x: any) => x.url));
     })();
-  }, [params.id]);
+  }, [id]);
 
-  if (loading) return <main className="p-6">Loading…</main>;
+  async function submitReport() {
+    setReportMsg(null);
+    const res = await fetch("/api/reports/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        profileId: id,
+        reason: reportReason,
+        details: reportDetails,
+      }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      setReportMsg(data.error || "Failed");
+      return;
+    }
+
+    setReportMsg("Report submitted. Thank you.");
+    setReportDetails("");
+  }
+
+  if (!id) return <main className="p-6">Loading…</main>;
   if (!p) return <main className="p-6">Profile not found.</main>;
 
   const whatsappDisplay =
@@ -97,6 +128,7 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
 
           <div className="mt-6 border rounded-xl p-4">
             <div className="font-medium mb-2">Contacts</div>
+
 
             {p.whatsapp ? (
               <div className="flex items-center justify-between gap-3">
@@ -140,6 +172,51 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
             <p className="text-xs text-gray-500 mt-3">
               Contacts are shown only on profile pages to reduce scraping.
             </p>
+          </div>
+          
+          <div className="mt-6 rounded-2xl border border-black/10 bg-white p-4">
+            <div className="flex items-center justify-between">
+              <div className="font-medium">Report</div>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setReportOpen((v) => !v);
+                  setReportMsg(null);
+                }}
+              >
+                {reportOpen ? "Close" : "Report profile"}
+              </Button>
+            </div>
+
+            {reportOpen ? (
+              <div className="mt-4 grid gap-3">
+                <select
+                  className="border rounded p-2"
+                  value={reportReason}
+                  onChange={(e) => setReportReason(e.target.value)}
+                >
+                  <option>Spam/Fake</option>
+                  <option>Scam</option>
+                  <option>Underage</option>
+                  <option>Harassment</option>
+                  <option>Other</option>
+                </select>
+
+                <textarea
+                  className="border rounded p-2"
+                  rows={3}
+                  placeholder="Optional details…"
+                  value={reportDetails}
+                  onChange={(e) => setReportDetails(e.target.value)}
+                />
+
+                <Button variant="primary" onClick={submitReport}>
+                  Submit report
+                </Button>
+
+                {reportMsg ? <div className="text-sm text-black/70">{reportMsg}</div> : null}
+              </div>
+            ) : null}
           </div>
         </div>
       </div>
