@@ -39,20 +39,29 @@ export default function ProfilePage() {
 
   const params = useParams<{ id: string }>();
   const id = params?.id;
-
+  
   useEffect(() => {
     if (!id) return;
+
     (async () => {
       setLoading(true);
+      setP(null);
+      setPhotos([]);
+
       const { data, error } = await supabase
         .from("profiles")
         .select("id, display_name, gender, age, city, area, bio, photo_url, whatsapp, telegram")
         .eq("id", id)
+        .eq("status", "approved")
         .eq("is_active", true)
         .single();
 
-      if (!error && data) setP(data as Profile);
-      setLoading(false);
+      if (error || !data) {
+        setLoading(false);
+        return; // stop here (don’t fetch photos)
+      }
+
+      setP(data as Profile);
 
       const { data: ph } = await supabase
         .from("profile_photos")
@@ -61,6 +70,7 @@ export default function ProfilePage() {
         .order("sort_order", { ascending: true });
 
       setPhotos((ph ?? []).map((x: any) => x.url));
+      setLoading(false);
     })();
   }, [id]);
 
@@ -85,10 +95,11 @@ export default function ProfilePage() {
     setReportMsg("Report submitted. Thank you.");
     setReportDetails("");
   }
-
+  
   if (!id) return <main className="p-6">Loading…</main>;
-  if (!p) return <main className="p-6">Profile not found.</main>;
-
+  if (loading) return <main className="p-6">Loading…</main>;
+  if (!p) return <main className="p-6">Profile not available.</main>;
+  
   const whatsappDisplay =
     p.whatsapp ? (showContact ? p.whatsapp : maskPhone(p.whatsapp)) : null;
 
