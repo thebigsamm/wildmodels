@@ -163,7 +163,7 @@ export default function AdminPage() {
         secret: secretTrim,
         profileId,
         isActive,
-        alsoReject: isActive === false, // ban also rejects (optional behavior)
+        alsoReject: false, // ban also rejects (optional behavior)
       }),
     });
 
@@ -230,136 +230,164 @@ export default function AdminPage() {
         {msg ? <div className="mt-3 text-sm">{msg}</div> : null}
       </div>
 
-      {/* REPORTS INBOX */}
-      <section className="mt-8">
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="text-xl font-semibold">Reports Inbox</h2>
+    {/* REPORTS INBOX */}
+<section className="mt-8">
+  <div className="flex items-center justify-between gap-3">
+    <h2 className="text-xl font-semibold">Reports Inbox</h2>
 
-          <div className="flex gap-2">
-            <button
-              className={`border rounded px-3 py-2 hover:bg-gray-50 ${
-                reportStatus === "open" ? "bg-gray-50" : ""
-              }`}
-              onClick={() => {
-                setReportStatus("open");
-                loadReports("open");
-              }}
-            >
-              Open
-            </button>
-            <button
-              className={`border rounded px-3 py-2 hover:bg-gray-50 ${
-                reportStatus === "closed" ? "bg-gray-50" : ""
-              }`}
-              onClick={() => {
-                setReportStatus("closed");
-                loadReports("closed");
-              }}
-            >
-              Closed
-            </button>
-          </div>
-        </div>
+    <div className="flex gap-2">
+      <button
+        className={`border rounded px-3 py-2 hover:bg-gray-50 ${
+          reportStatus === "open" ? "bg-gray-50" : ""
+        }`}
+        onClick={() => {
+          setReportStatus("open");
+          loadReports("open");
+        }}
+      >
+        Open
+      </button>
+      <button
+        className={`border rounded px-3 py-2 hover:bg-gray-50 ${
+          reportStatus === "closed" ? "bg-gray-50" : ""
+        }`}
+        onClick={() => {
+          setReportStatus("closed");
+          loadReports("closed");
+        }}
+      >
+        Closed
+      </button>
+    </div>
+  </div>
 
-        <div className="mt-4 grid gap-3">
-          {reports.length === 0 && !loadingReports ? (
-            <div className="text-gray-600">
-              No {reportStatus} reports (or not loaded yet).
+  <div className="mt-4 grid gap-3">
+    {reports.length === 0 && !loadingReports ? (
+      <div className="text-gray-600">
+        No {reportStatus} reports (or not loaded yet).
+      </div>
+    ) : null}
+
+    {reports.map((r) => {
+      const pr = r.profiles;
+
+      async function suspendAndClose() {
+        if (!pr) return;
+        // 1) suspend
+        await setProfileActive(pr.id, false);
+        // 2) close report
+        await closeReport(r.id);
+      }
+
+      return (
+        <div key={r.id} className="border rounded-xl p-4">
+          <div className="flex items-start justify-between gap-4">
+            <div className="grid gap-1">
+              <div className="font-medium">
+                {r.reason}{" "}
+                <span className="text-sm text-gray-500">
+                  • {fmtDate(r.created_at)}
+                </span>
+              </div>
+
+              {r.details ? (
+                <div className="text-sm text-gray-700 whitespace-pre-wrap">
+                  {r.details}
+                </div>
+              ) : (
+                <div className="text-sm text-gray-500">No details provided.</div>
+              )}
             </div>
-          ) : null}
 
-          {reports.map((r) => {
-            const pr = r.profiles;
-            return (
-              <div key={r.id} className="border rounded-xl p-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="grid gap-1">
-                    <div className="font-medium">
-                      {r.reason}{" "}
-                      <span className="text-sm text-gray-500">
-                        • {fmtDate(r.created_at)}
-                      </span>
-                    </div>
-                    {r.details ? (
-                      <div className="text-sm text-gray-700 whitespace-pre-wrap">
-                        {r.details}
-                      </div>
-                    ) : (
-                      <div className="text-sm text-gray-500">
-                        No details provided.
-                      </div>
-                    )}
+            <Link className="underline text-sm" href={`/profile/${r.profile_id}`}>
+              View profile
+            </Link>
+          </div>
+
+          <div className="mt-3 rounded-lg border p-3">
+            {pr ? (
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 rounded-lg overflow-hidden bg-gray-100 shrink-0">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  {pr.photo_url ? (
+                    <img
+                      src={pr.photo_url}
+                      alt="photo"
+                      className="h-full w-full object-cover"
+                    />
+                  ) : null}
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <div className="font-medium truncate">
+                    {pr.display_name} • {pr.age} • {pr.gender}
                   </div>
 
-                  <Link className="underline text-sm" href={`/profile/${r.profile_id}`}>
-                    View profile
-                  </Link>
-                </div>
+                  <div className="text-sm text-gray-600 truncate">
+                    {pr.city}, {pr.area}
+                  </div>
 
-                <div className="mt-3 rounded-lg border p-3">
-                  {pr ? (
-                    <div className="flex items-center gap-3">
-                      <div className="h-12 w-12 rounded-lg overflow-hidden bg-gray-100 shrink-0">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        {pr.photo_url ? (
-                          <img
-                            src={pr.photo_url}
-                            alt="photo"
-                            className="h-full w-full object-cover"
-                          />
-                        ) : null}
-                      </div>
-
-                      <div className="min-w-0">
-                        <div className="font-medium truncate">
-                          {pr.display_name} • {pr.age} • {pr.gender}
-                        </div>
-                        <div className="text-sm text-gray-600 truncate">
-                          {pr.city}, {pr.area} • status: {pr.status} • active:{" "}
-                          {String(pr.is_active)}
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-sm text-gray-600">
-                      Profile record not available (maybe deleted).
-                    </div>
-                  )}
-                </div>
-
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {pr ? (
-                    pr.is_active ? (
-                      <button
-                        className="border rounded px-3 py-1 hover:bg-gray-50"
-                        onClick={() => setProfileActive(pr.id, false)}
-                      >
-                        Ban profile
-                      </button>
-                    ) : (
-                      <button
-                        className="border rounded px-3 py-1 hover:bg-gray-50"
-                        onClick={() => setProfileActive(pr.id, true)}
-                      >
-                        Unban profile
-                      </button>
-                    )
-                  ) : null}
-
-                  {r.status === "open" ? (
-                    <button
-                      className="border rounded px-3 py-1 hover:bg-gray-50"
-                      onClick={() => closeReport(r.id)}
-                    >
-                      Close report
-                    </button>
-                  ) : null}
+                  <div className="mt-2 flex flex-wrap gap-2 text-xs">
+                    <span className="rounded-full border px-2 py-0.5">
+                      status: {pr.status}
+                    </span>
+                    <span className="rounded-full border px-2 py-0.5">
+                      active: {pr.is_active ? "true" : "false"}
+                    </span>
+                  </div>
                 </div>
               </div>
-            );
-          })}
+            ) : (
+              <div className="text-sm text-gray-600">
+                Profile record not available (maybe deleted).
+              </div>
+            )}
+          </div>
+
+          <div className="mt-3 flex flex-wrap gap-2">
+            {pr ? (
+              pr.is_active ? (
+                <button
+                  className="border rounded px-3 py-1 hover:bg-gray-50"
+                  onClick={() => setProfileActive(pr.id, false)}
+                >
+                  Suspend profile
+                </button>
+              ) : (
+                <button
+                  className="border rounded px-3 py-1 hover:bg-gray-50"
+                  onClick={() => setProfileActive(pr.id, true)}
+                >
+                  Unsuspend profile
+                </button>
+              )
+            ) : null}
+
+            {r.status === "open" ? (
+              <>
+                <button
+                  className="border rounded px-3 py-1 hover:bg-gray-50"
+                  onClick={() => closeReport(r.id)}
+                >
+                  Close report
+                </button>
+
+                {pr && pr.is_active ? (
+                  <button
+                    className="border rounded px-3 py-1 hover:bg-gray-50"
+                    onClick={suspendAndClose}
+                  >
+                    Suspend + Close
+                  </button>
+                ) : null}
+              </>
+            ) : null}
+          </div>
         </div>
-      </section>
+      );
+    })}
+  </div>
+</section>
 
       {/* PENDING APPROVALS */}
       <section className="mt-10">
