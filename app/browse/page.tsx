@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { SiteHeader } from "@/components/SiteHeader";
+import { Suspense } from "react";
 
 type Profile = {
   id: string;
@@ -202,7 +203,9 @@ export default function Page() {
 
   return (
     <main className="min-h-screen bg-white">
-      <SiteHeader />
+      <Suspense fallback={<div className="h-14 border-b border-black/10 bg-white/80 backdrop-blur" />}>
+        <SiteHeader />
+      </Suspense>
       <div className="mx-auto max-w-5xl px-6 py-8">
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <h1 className="text-2xl font-semibold">Browse</h1>

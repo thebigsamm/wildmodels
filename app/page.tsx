@@ -1,10 +1,13 @@
 import { Button } from "@/components/Button";
 import { SiteHeader } from "@/components/SiteHeader";
+import { Suspense } from "react";
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-white">
-      <SiteHeader />
+      <Suspense fallback={<div className="h-14 border-b border-black/10 bg-white/80 backdrop-blur" />}>
+        <SiteHeader />
+      </Suspense>
 
       <div className="mx-auto max-w-5xl px-6 py-10">
         <div className="rounded-3xl border border-black/10 bg-white p-8 shadow-sm">
