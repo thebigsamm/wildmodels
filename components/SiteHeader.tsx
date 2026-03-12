@@ -1,16 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { Button } from "./Button";
 
-export function SiteHeader({
-  rightSlot,
-}: {
-  rightSlot?: React.ReactNode;
-}) {
-  const sp = useSearchParams();
-  const showAdmin = sp.get("admin") === "1";
+export function SiteHeader({ rightSlot }: { rightSlot?: React.ReactNode }) {
+  const pathname = usePathname();
+  const [showAdmin, setShowAdmin] = useState(false);
+
+  useEffect(() => {
+    // read ?admin=1 from the real URL
+    const sp = new URLSearchParams(window.location.search);
+    setShowAdmin(sp.get("admin") === "1");
+  }, [pathname]);
 
   return (
     <header className="sticky top-0 z-20 border-b border-black/10 bg-white/80 backdrop-blur">
