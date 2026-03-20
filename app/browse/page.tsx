@@ -5,6 +5,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Suspense } from "react";
+import { NG_TOP_STATES } from "@/lib/ngStates";
 
 type Profile = {
   id: string;
@@ -21,16 +22,33 @@ type Profile = {
 const LAUNCH_CITIES = ["Lagos", "Abuja", "Port Harcourt", "Ibadan", "Benin City", "Enugu"] as const;
 
 // “AI” parsing helpers
-const CITY_ALIASES: Record<string, (typeof LAUNCH_CITIES)[number]> = {
+const CITY_ALIASES: Record<string, string> = {
   lagos: "Lagos",
-  abuja: "Abuja",
-  "port harcourt": "Port Harcourt",
-  "p.h": "Port Harcourt",
-  ph: "Port Harcourt",
-  ibadan: "Ibadan",
-  "benin city": "Benin City",
-  benin: "Benin City",
+  fct: "Abuja",
+  "f.c.t": "Abuja",
+  kano: "Kano",
+  katsina: "Katsina",
+  kaduna: "Kaduna",
+  oyo: "Oyo",
+  anambra: "Anambra",
+  rivers: "Rivers",
+  "port harcourt": "Rivers",
+  "p.h": "Rivers",
+  ph: "Rivers",
+  niger: "Niger",
+  benue: "Benue",
+  ogun: "Ogun",
+  sokoto: "Sokoto",
+  delta: "Delta",
+  imo: "Imo",
+  ondo: "Ondo",
+  "akwa ibom": "Akwa Ibom",
+  edo: "Edo",
   enugu: "Enugu",
+  bayelsa: "Bayelsa",
+  "cross river": "Cross River",
+  kogi: "Kogi",
+  abia: "Abia",
 };
 
 const AREA_KEYWORDS = [
@@ -143,6 +161,8 @@ export default function Page() {
       const { data, error } = await supabase
         .from("profiles")
         .select("id, display_name, gender, age, city, area, bio, photo_url")
+        .eq("status", "approved")
+        .eq("is_active", true)
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -157,11 +177,7 @@ export default function Page() {
   }, []);
 
   // Build city dropdown from your launch cities + whatever exists in DB
-  const cityOptions = useMemo(() => {
-    const fromDb = new Set(profiles.map((p) => p.city));
-    const combined = new Set<string>(["all", ...LAUNCH_CITIES, ...Array.from(fromDb)]);
-    return Array.from(combined);
-  }, [profiles]);
+  const cityOptions = ["all", ...NG_TOP_STATES] as const;
 
   const filtered = useMemo(() => {
     const min = minAge === "" ? null : Number(minAge);
@@ -253,7 +269,7 @@ export default function Page() {
         <select className="border rounded p-2" value={city} onChange={(e) => setCity(e.target.value)}>
           {cityOptions.map((c) => (
             <option key={c} value={c}>
-              {c === "all" ? "All cities" : c}
+              {c === "all" ? "All states" : c}
             </option>
           ))}
         </select>
