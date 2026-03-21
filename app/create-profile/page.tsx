@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { SiteHeader } from "@/components/SiteHeader";
+import { Suspense } from "react";
+import { NG_TOP_STATES, type NgTopState } from "@/lib/ngStates";
 
 export default function CreateProfilePage() {
   const [loading, setLoading] = useState(false);
@@ -12,7 +14,7 @@ export default function CreateProfilePage() {
   const [displayName, setDisplayName] = useState("");
   const [gender, setGender] = useState<"female" | "male" | "nonbinary">("female");
   const [age, setAge] = useState<number>(18);
-  const [city, setCity] = useState("");
+  const [city, setCity] = useState<NgTopState | "">("");
   const [area, setArea] = useState("");
   const [bio, setBio] = useState("");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
@@ -25,7 +27,7 @@ export default function CreateProfilePage() {
   setMsg(null);
 
   if (!displayName.trim()) return setMsg("Please enter a display name.");
-  if (!city.trim()) return setMsg("Please enter a city (e.g., Lagos).");
+  if (!city) return setMsg("Please select a state.");
   if (!area.trim()) return setMsg("Please enter an area (e.g., Lekki).");
   if (age < 18) return setMsg("You must be 18+.");
   if (photoFiles.length < 1) return setMsg("Upload at least 1 photo.");
@@ -42,7 +44,7 @@ export default function CreateProfilePage() {
   fd.append("display_name", displayName.trim());
   fd.append("gender", gender);
   fd.append("age", String(age));
-  fd.append("city", city.trim());
+  fd.append("city", city);
   fd.append("area", area.trim());
   fd.append("bio", bio.trim());
   if (whatsapp.trim()) fd.append("whatsapp", whatsapp.trim());
@@ -74,7 +76,9 @@ export default function CreateProfilePage() {
 
   return (
     <main className="min-h-screen bg-white">
-      <SiteHeader />
+      <Suspense fallback={<div className="h-14 border-b border-black/10 bg-white/80 backdrop-blur" />}>
+        <SiteHeader />
+      </Suspense>
       <div className="mx-auto max-w-3xl px-6 py-8">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Create Profile</h1>
@@ -117,7 +121,18 @@ export default function CreateProfilePage() {
         <div className="grid grid-cols-2 gap-3">
           <label className="grid gap-1">
             <span className="text-sm">City</span>
-            <input className="border rounded p-2" value={city} onChange={(e) => setCity(e.target.value)} />
+            <select
+              className="border rounded p-2"
+              value={city}
+              onChange={(e) => setCity(e.target.value as any)}
+            >
+              <option value="">Select a state</option>
+              {NG_TOP_STATES.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
           </label>
           <label className="grid gap-1">
             <span className="text-sm">Area</span>

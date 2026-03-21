@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { createProfileRatelimit } from "@/lib/ratelimit";
 import { reportRatelimit } from "@/lib/ratelimit";
+import { isAllowedNgState } from "@/lib/ngStates";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -37,6 +38,9 @@ if (!success) {
     const whatsapp = String(form.get("whatsapp") ?? "").trim() || null;
     const telegram = String(form.get("telegram") ?? "").trim() || null;
 
+    if (!isAllowedNgState(city)) {
+      return NextResponse.json({ error: "Invalid state selected." }, { status: 400 });
+    }
     if (!display_name || !city || !area) {
       return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
     }
