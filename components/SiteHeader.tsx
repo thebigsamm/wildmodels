@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Button } from "./Button";
+import HeaderAuthNav from "@/components/HeaderAuthNav";
 
 export function SiteHeader({ rightSlot }: { rightSlot?: React.ReactNode }) {
   const pathname = usePathname();
@@ -29,6 +30,8 @@ export function SiteHeader({ rightSlot }: { rightSlot?: React.ReactNode }) {
           <Button href="/create-profile" variant="subtle">
             Create
           </Button>
+          
+          <HeaderAuthNav /> 
 
           {rightSlot ? (
             rightSlot

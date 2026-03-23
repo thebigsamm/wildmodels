@@ -64,6 +64,19 @@ export default async function DashboardPage() {
             >
               View public profile
             </a>
+
+            <a
+              href="/dashboard/profile"
+              className="rounded-lg border px-4 py-2"
+            >
+              Edit profile
+            </a>
+            <a
+              href="/dashboard/photos"
+              className="rounded-lg border px-4 py-2"
+            >
+              Manage photos
+            </a>
           </div>
         </div>
       )}
