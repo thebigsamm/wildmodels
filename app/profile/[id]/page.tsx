@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Button } from "@/components/Button";
 import { useParams } from "next/navigation";
+import { Suspense } from "react";
 
 type Profile = {
   id: string;
@@ -95,7 +96,7 @@ export default function ProfilePage() {
     setReportMsg("Report submitted. Thank you.");
     setReportDetails("");
   }
-  
+
   if (!id) return <main className="p-6">Loading…</main>;
   if (loading) return <main className="p-6">Loading…</main>;
   if (!p) return <main className="p-6">Profile not available.</main>;
@@ -105,7 +106,9 @@ export default function ProfilePage() {
 
   return (
     <main className="min-h-screen bg-white">
-      <SiteHeader />
+      <Suspense fallback={<div className="h-14 border-b border-black/10 bg-white/80 backdrop-blur" />}>
+        <SiteHeader />
+      </Suspense>
       <div className="mx-auto max-w-5xl px-6 py-8">
       <Link className="underline" href="/browse">
         ← Back to Browse
