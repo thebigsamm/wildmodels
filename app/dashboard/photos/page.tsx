@@ -214,6 +214,32 @@ export default function ManagePhotosPage() {
     router.refresh();
   }
 
+  async function reorderPhoto(photoId: string, direction: "up" | "down") {
+    if (!profileId) return;
+
+    setWorking(true);
+    setMsg(null);
+
+    const res = await fetch("/api/account/photos/reorder", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ photoId, direction }),
+    });
+
+    const data = await res.json();
+
+    setWorking(false);
+
+    if (!res.ok) {
+      setMsg(`Error: ${data.error || "Reorder failed."}`);
+      return;
+    }
+
+    await reloadPhotos(profileId);
+    setMsg("Photo order updated.");
+    router.refresh();
+  }
+
   if (loading) {
     return (
       <main className="mx-auto max-w-5xl px-4 py-10">
@@ -304,6 +330,32 @@ export default function ManagePhotosPage() {
                       >
                         Set as main
                       </button>
+                    ) : null}
+
+                    {!photo.synthetic ? (
+                      <>
+                        <button
+                          onClick={() => reorderPhoto(photo.id, "up")}
+                          disabled={
+                            working ||
+                            photos.findIndex((p) => p.id === photo.id) === 0
+                          }
+                          className="rounded-lg border px-3 py-2 text-sm disabled:opacity-50"
+                        >
+                          Move up
+                        </button>
+                        <button
+                          onClick={() => reorderPhoto(photo.id, "down")}
+                          disabled={
+                            working ||
+                            photos.findIndex((p) => p.id === photo.id) ===
+                              photos.length - 1
+                          }
+                          className="rounded-lg border px-3 py-2 text-sm disabled:opacity-50"
+                        >
+                          Move down
+                        </button>
+                      </>
                     ) : null}
 
                     <button
