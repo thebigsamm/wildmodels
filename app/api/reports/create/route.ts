@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { ratelimit } from "@/lib/ratelimit";
+import { reportRatelimit } from "@/lib/ratelimit";
 
 export async function POST(req: Request) {
   try {
@@ -8,7 +9,7 @@ export async function POST(req: Request) {
       req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
       "unknown";
 
-    const { success } = await ratelimit.limit(`reports:${ip}`);
+    const { success } = await reportRatelimit.limit(`reports:${ip}`);
     if (!success) {
       return NextResponse.json(
         { error: "Too many reports. Try again later." },
