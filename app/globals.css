@@ -52,8 +52,17 @@ body {
 }
 
 .gradient-text-slide {
-  background: linear-gradient(90deg, #ff115a, #c400ff, #ff115a);
-  background-size: 200% auto;
+  background: linear-gradient(
+    90deg,
+    #ff115a,
+    #ff7a3d,
+    #ffd23f,
+    #c400ff,
+    #2fe6ff,
+    #8f00d6,
+    #ff115a
+  );
+  background-size: 300% auto;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
