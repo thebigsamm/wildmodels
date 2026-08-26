@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { SiteHeader } from "@/components/SiteHeader";
 
 type PhotoRow = {
   id: string;
@@ -244,6 +245,9 @@ export default function ManagePhotosPage() {
   if (loading) {
     return (
       <main className="min-h-screen bg-[#060002]">
+        <Suspense fallback={<div className="h-14 border-b border-white/10 bg-[#060002]/90 backdrop-blur" />}>
+          <SiteHeader />
+        </Suspense>
         <div className="mx-auto max-w-5xl px-4 py-10">
           <p className="text-[#c9a7b3]">Loading...</p>
         </div>
@@ -253,6 +257,9 @@ export default function ManagePhotosPage() {
 
   return (
     <main className="min-h-screen bg-[#060002]">
+      <Suspense fallback={<div className="h-14 border-b border-white/10 bg-[#060002]/90 backdrop-blur" />}>
+        <SiteHeader />
+      </Suspense>
       <div className="mx-auto max-w-5xl px-4 py-10">
       <h1 className="font-[family-name:var(--font-display)] text-3xl uppercase text-[#fbecef]">
         Manage Photos

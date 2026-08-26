@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { getProfileStatusInfo } from "@/lib/profileStatus";
+import { SiteHeader } from "@/components/SiteHeader";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -26,6 +28,9 @@ export default async function DashboardPage() {
 
   return (
     <main className="min-h-screen bg-[#060002]">
+      <Suspense fallback={<div className="h-14 border-b border-white/10 bg-[#060002]/90 backdrop-blur" />}>
+        <SiteHeader />
+      </Suspense>
       <div className="mx-auto max-w-2xl px-4 py-10">
         <div className="flex items-center justify-between gap-3">
           <h1 className="font-[family-name:var(--font-display)] text-3xl uppercase text-[#fbecef]">

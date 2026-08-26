@@ -1,8 +1,10 @@
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import LogoutButton from "@/components/logoutbutton";
 import DeleteProfileButton from "@/components/deleteprofilebutton";
 import ChangePasswordForm from "@/components/changepasswordform";
+import { SiteHeader } from "@/components/SiteHeader";
 
 export default async function AccountSettingsPage() {
   const supabase = await createClient();
@@ -24,6 +26,9 @@ export default async function AccountSettingsPage() {
 
   return (
     <main className="min-h-screen bg-[#060002]">
+      <Suspense fallback={<div className="h-14 border-b border-white/10 bg-[#060002]/90 backdrop-blur" />}>
+        <SiteHeader />
+      </Suspense>
       <div className="mx-auto max-w-2xl px-4 py-10">
       <a href="/dashboard" className="text-sm font-semibold text-[#ff5f8f] hover:text-[#fbecef]">
         ← Back to dashboard
