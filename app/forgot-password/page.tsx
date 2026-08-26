@@ -1,27 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
-export default function LoginPage() {
+export default function ForgotPasswordPage() {
   const supabase = createClient();
-  const router = useRouter();
 
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
-  async function handleLogin(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setMessage("");
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
     });
 
     setLoading(false);
@@ -31,15 +27,14 @@ export default function LoginPage() {
       return;
     }
 
-    router.push("/dashboard");
-    router.refresh();
+    setMessage("If an account exists for that email, a reset link has been sent.");
   }
 
   return (
     <main className="mx-auto max-w-md px-4 py-10">
-      <h1 className="mb-6 text-2xl font-semibold">Log in</h1>
+      <h1 className="mb-6 text-2xl font-semibold">Reset your password</h1>
 
-      <form onSubmit={handleLogin} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <input
           type="email"
           placeholder="Email"
@@ -49,27 +44,18 @@ export default function LoginPage() {
           required
         />
 
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full rounded-lg border px-4 py-3"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-
         <button
           type="submit"
           disabled={loading}
           className="w-full rounded-lg bg-black px-4 py-3 text-white disabled:opacity-50"
         >
-          {loading ? "Logging in..." : "Log in"}
+          {loading ? "Sending..." : "Send reset link"}
         </button>
       </form>
 
       <div className="mt-4 text-center">
-        <Link href="/forgot-password" className="text-sm text-gray-600 underline">
-          Forgot password?
+        <Link href="/login" className="text-sm text-gray-600 underline">
+          Back to login
         </Link>
       </div>
 
