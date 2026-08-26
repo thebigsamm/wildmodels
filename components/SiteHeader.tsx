@@ -17,10 +17,13 @@ export function SiteHeader({ rightSlot }: { rightSlot?: React.ReactNode }) {
   }, [pathname]);
 
   return (
-    <header className="sticky top-0 z-20 border-b border-black/10 bg-white/80 backdrop-blur">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
-        <Link href="/" className="font-semibold tracking-tight">
-          WildModels
+    <header className="sticky top-0 z-20 border-b border-white/10 bg-[#060002]/90 backdrop-blur">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
+        <Link
+          href="/"
+          className="bg-gradient-to-r from-[#ff115a] to-[#c400ff] bg-clip-text font-[family-name:var(--font-display)] text-xl tracking-wide text-transparent"
+        >
+          WILDMODELS
         </Link>
 
         <nav className="flex items-center gap-2">

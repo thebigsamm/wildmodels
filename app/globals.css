@@ -1,26 +1,46 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #060002;
+  --bg-panel: #150109;
+  --bg-panel-alt: #220413;
+  --text: #fbecef;
+  --text-muted: #c9a7b3;
+  --text-muted-2: #a3808c;
+  --text-faint: #8f6b78;
+  --accent-pink: #ff115a;
+  --accent-purple: #c400ff;
+  --accent-purple-deep: #8f00d6;
+  --accent-mauve-deep: #3a0059;
+  --online: #34ffb0;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-pink: rgba(255, 17, 90, 0.28);
+  --border-purple: rgba(196, 0, 255, 0.28);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-background: var(--bg);
+  --color-foreground: var(--text);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body), sans-serif;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.live-dot {
+  animation: pulse 1.6s ease-in-out infinite;
 }

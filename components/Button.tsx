@@ -4,17 +4,17 @@ import React from "react";
 type Variant = "primary" | "outline" | "subtle";
 
 const base =
-  "inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-medium transition " +
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20 " +
+  "inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-bold transition " +
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff115a]/40 " +
   "disabled:pointer-events-none disabled:opacity-50";
 
 const variants: Record<Variant, string> = {
   primary:
-    "bg-black text-white hover:bg-black/90 shadow-sm",
+    "bg-gradient-to-r from-[#ff115a] to-[#c400ff] text-[#060002] shadow-[0_0_26px_rgba(255,17,90,0.5)] hover:opacity-90",
   outline:
-    "border border-black/15 bg-white text-black hover:bg-gray-50 shadow-sm",
+    "border border-white/20 bg-transparent text-[#fbecef] hover:bg-white/5",
   subtle:
-    "text-black/80 hover:text-black hover:bg-gray-50",
+    "font-semibold text-[#fbecef] hover:text-[#ff5f8f]",
 };
 
 export function Button({

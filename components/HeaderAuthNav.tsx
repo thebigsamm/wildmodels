@@ -51,30 +51,39 @@ export default function HeaderAuthNav() {
   }
 
   if (loading) {
-    return <div className="text-sm text-gray-500">...</div>;
+    return <div className="text-sm text-[#8f6b78]">...</div>;
   }
 
   if (!user) {
     return (
-      <div className="flex items-center gap-3">
-        <Link href="/login" className="rounded-lg border px-3 py-2 text-sm">
+      <div className="flex items-center gap-2">
+        <Link
+          href="/login"
+          className="rounded-full border border-white/20 px-4 py-2 text-sm font-bold text-[#fbecef] hover:bg-white/5"
+        >
           Login
         </Link>
-        <Link href="/register" className="rounded-lg bg-black px-3 py-2 text-sm text-white">
-          Register
+        <Link
+          href="/register"
+          className="rounded-full bg-gradient-to-r from-[#ff115a] to-[#c400ff] px-5 py-2 text-sm font-bold text-[#060002] shadow-[0_0_20px_rgba(255,17,90,0.4)] hover:opacity-90"
+        >
+          Join free
         </Link>
       </div>
     );
   }
 
   return (
-    <div className="flex items-center gap-3">
-      <Link href="/dashboard" className="rounded-lg border px-3 py-2 text-sm">
+    <div className="flex items-center gap-2">
+      <Link
+        href="/dashboard"
+        className="rounded-full border border-white/20 px-4 py-2 text-sm font-bold text-[#fbecef] hover:bg-white/5"
+      >
         Dashboard
       </Link>
       <button
         onClick={handleLogout}
-        className="rounded-lg border px-3 py-2 text-sm"
+        className="rounded-full border border-white/20 px-4 py-2 text-sm font-bold text-[#fbecef] hover:bg-white/5"
       >
         Log out
       </button>
