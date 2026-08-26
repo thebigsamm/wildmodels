@@ -35,7 +35,7 @@ export default function Home() {
             </Button>
           </div>
 
-          <p className="mt-8 text-lg font-semibold text-[#8f6b78]">
+          <p className="gradient-text-slide mt-8 text-lg font-bold">
             18+ only.
           </p>
         </div>

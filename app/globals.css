@@ -44,3 +44,19 @@ body {
 .live-dot {
   animation: pulse 1.6s ease-in-out infinite;
 }
+
+@keyframes gradient-slide {
+  to {
+    background-position: 200% center;
+  }
+}
+
+.gradient-text-slide {
+  background: linear-gradient(90deg, #ff115a, #c400ff, #ff115a);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: gradient-slide 3s ease-in-out infinite alternate;
+}
