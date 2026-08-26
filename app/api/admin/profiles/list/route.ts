@@ -16,7 +16,7 @@ export async function POST(req: Request) {
   const { data, error } = await supabaseAdmin
     .from("profiles")
     .select(
-      "id, username, display_name, gender, age, city, area, status, is_active, deleted_at, created_at"
+      "id, username, display_name, gender, age, city, area, status, is_active, is_hidden_by_owner, deleted_at, created_at"
     )
     .order("created_at", { ascending: false })
     .limit(500);

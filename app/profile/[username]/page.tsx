@@ -55,6 +55,7 @@ export default function ProfilePage() {
         .eq("username", username)
         .eq("status", "approved")
         .eq("is_active", true)
+        .eq("is_hidden_by_owner", false)
         .is("deleted_at", null)
         .single();
 

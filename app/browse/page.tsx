@@ -164,6 +164,7 @@ export default function Page() {
         .select("id, username, display_name, gender, age, city, area, bio, photo_url")
         .eq("status", "approved")
         .eq("is_active", true)
+        .eq("is_hidden_by_owner", false)
         .is("deleted_at", null)
         .order("created_at", { ascending: false });
 

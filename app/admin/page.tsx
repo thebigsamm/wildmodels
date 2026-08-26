@@ -56,6 +56,7 @@ type AllProfileRow = {
   area: string;
   status: "pending" | "approved" | "rejected";
   is_active: boolean;
+  is_hidden_by_owner: boolean;
   deleted_at: string | null;
   created_at: string;
 };
@@ -927,6 +928,7 @@ export default function AdminPage() {
                             active: {row.is_active ? "true" : "false"}
                           </Badge>
                           {archived ? <Badge tone="bad">archived</Badge> : null}
+                          {row.is_hidden_by_owner ? <Badge tone="warn">hidden by owner</Badge> : null}
                         </div>
                       </div>
 

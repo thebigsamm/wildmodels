@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { getProfileStatusInfo } from "@/lib/profileStatus";
 import { SiteHeader } from "@/components/SiteHeader";
+import ToggleProfileVisibilityButton from "@/components/toggleprofilevisibilitybutton";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -17,13 +18,13 @@ export default async function DashboardPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, username, display_name, city, area, status, is_active")
+    .select("id, username, display_name, city, area, status, is_active, is_hidden_by_owner")
     .eq("user_id", user.id)
     .is("deleted_at", null)
     .maybeSingle();
 
   const statusInfo = profile
-    ? getProfileStatusInfo(profile.status, profile.is_active)
+    ? getProfileStatusInfo(profile.status, profile.is_active, profile.is_hidden_by_owner)
     : null;
 
   return (
@@ -92,6 +93,10 @@ export default async function DashboardPage() {
               >
                 Manage photos
               </a>
+
+              {profile.status === "approved" ? (
+                <ToggleProfileVisibilityButton initialHidden={profile.is_hidden_by_owner} />
+              ) : null}
             </div>
           </div>
         )}

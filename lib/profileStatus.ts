@@ -5,7 +5,8 @@ export type ProfileStatusInfo = {
 
 export function getProfileStatusInfo(
   status: string,
-  isActive: boolean
+  isActive: boolean,
+  isHiddenByOwner: boolean = false
 ): ProfileStatusInfo {
   if (status === "pending") {
     return {
@@ -22,17 +23,24 @@ export function getProfileStatusInfo(
     };
   }
 
-  if (status === "approved" && isActive) {
-    return {
-      label: "Live",
-      description: "Your profile is publicly visible on Browse.",
-    };
-  }
-
   if (status === "approved" && !isActive) {
     return {
       label: "Hidden by an admin",
       description: "Your profile was suspended and isn't publicly visible right now.",
+    };
+  }
+
+  if (status === "approved" && isActive && isHiddenByOwner) {
+    return {
+      label: "Hidden by you",
+      description: "You've hidden your profile from Browse. Unhide it any time.",
+    };
+  }
+
+  if (status === "approved" && isActive) {
+    return {
+      label: "Live",
+      description: "Your profile is publicly visible on Browse.",
     };
   }
 
