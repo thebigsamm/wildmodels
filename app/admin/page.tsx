@@ -283,6 +283,83 @@ export default function AdminPage() {
     await loadReports();
   }
 
+  // ---- PROFILE ARCHIVE / DELETE ----
+  async function archiveProfile(profileId: string) {
+    if (!requireSecret()) return;
+
+    const ok = confirm(
+      "Archive this profile? It disappears from Browse immediately, but nothing is deleted — it can be unarchived later."
+    );
+    if (!ok) return;
+
+    const res = await fetch("/api/admin/profiles/archive", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ secret: secretTrim, profileId }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      setMsg(data.error || "Failed to archive profile");
+      return;
+    }
+
+    setMsg("Profile archived.");
+    await loadReports();
+  }
+
+  async function unarchiveProfile(profileId: string) {
+    if (!requireSecret()) return;
+
+    const res = await fetch("/api/admin/profiles/unarchive", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ secret: secretTrim, profileId }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      setMsg(data.error || "Failed to unarchive profile");
+      return;
+    }
+
+    setMsg("Profile unarchived.");
+    await loadReports();
+  }
+
+  async function deleteProfilePermanently(profileId: string) {
+    if (!requireSecret()) return;
+
+    const ok = confirm(
+      "Permanently delete this profile? This removes the profile, all its photos, and the underlying image files. This CANNOT be undone."
+    );
+    if (!ok) return;
+
+    const res = await fetch("/api/admin/profiles/delete", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ secret: secretTrim, profileId }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      setMsg(data.error || "Failed to delete profile");
+      return;
+    }
+
+    setMsg(data.warning || "Profile permanently deleted.");
+    await loadReports();
+  }
+
+  function withSearchId(fn: (id: string) => void) {
+    const id = photoSearchId.trim();
+    if (!id) {
+      setMsg("Paste a profile ID first.");
+      return;
+    }
+    fn(id);
+  }
+
   // ---- PHOTO MODERATION HELPERS ----
   async function openManagePhotos(profileId: string) {
     if (!requireSecret()) return;
@@ -467,25 +544,19 @@ export default function AdminPage() {
               </Btn>
             </div>
 
-            {/* Quick photo manage */}
+            {/* Quick profile actions by ID */}
             <div className="flex flex-wrap gap-2 items-center">
               <input
                 className="rounded-xl border border-white/10 bg-[#220413] px-3 py-2 text-sm text-[#fbecef] w-[280px] max-w-full placeholder:text-[#8f6b78]"
-                placeholder="Profile ID → Manage photos"
+                placeholder="Profile ID"
                 value={photoSearchId}
                 onChange={(e) => setPhotoSearchId(e.target.value)}
               />
-              <Btn
-                onClick={() => {
-                  const id = photoSearchId.trim();
-                  if (!id) {
-                    setMsg("Paste a profile ID first.");
-                    return;
-                  }
-                  openManagePhotos(id);
-                }}
-              >
-                Open photos
+              <Btn onClick={() => withSearchId(openManagePhotos)}>Open photos</Btn>
+              <Btn onClick={() => withSearchId(archiveProfile)}>Archive</Btn>
+              <Btn onClick={() => withSearchId(unarchiveProfile)}>Unarchive</Btn>
+              <Btn tone="danger" onClick={() => withSearchId(deleteProfilePermanently)}>
+                Delete permanently
               </Btn>
             </div>
           </div>
@@ -637,6 +708,12 @@ export default function AdminPage() {
                       ) : null}
 
                       {pr ? <Btn onClick={() => openManagePhotos(pr.id)}>Manage photos</Btn> : null}
+                      {pr ? <Btn onClick={() => archiveProfile(pr.id)}>Archive</Btn> : null}
+                      {pr ? (
+                        <Btn tone="danger" onClick={() => deleteProfilePermanently(pr.id)}>
+                          Delete permanently
+                        </Btn>
+                      ) : null}
 
                       {r.status === "open" ? (
                         <>
