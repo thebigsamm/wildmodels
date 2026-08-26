@@ -46,6 +46,20 @@ type AdminPhoto = {
   created_at: string;
 };
 
+type AllProfileRow = {
+  id: string;
+  username: string;
+  display_name: string;
+  gender: string;
+  age: number;
+  city: string;
+  area: string;
+  status: "pending" | "approved" | "rejected";
+  is_active: boolean;
+  deleted_at: string | null;
+  created_at: string;
+};
+
 function fmtDate(iso: string) {
   try {
     return new Date(iso).toLocaleString();
@@ -115,7 +129,12 @@ export default function AdminPage() {
   const [secret, setSecret] = useState("");
 
   // Tabs
-  const [tab, setTab] = useState<"reports" | "pending">("reports");
+  const [tab, setTab] = useState<"reports" | "pending" | "all">("reports");
+
+  // All profiles
+  const [allRows, setAllRows] = useState<AllProfileRow[]>([]);
+  const [loadingAll, setLoadingAll] = useState(false);
+  const [allSearch, setAllSearch] = useState("");
 
   // Pending approvals
   const [rows, setRows] = useState<ProfileRow[]>([]);
@@ -199,6 +218,41 @@ export default function AdminPage() {
 
     setRows((data.rows ?? []) as ProfileRow[]);
   }
+
+  async function loadAll() {
+    if (!requireSecret()) return;
+    setLoadingAll(true);
+
+    const res = await fetch("/api/admin/profiles/list", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ secret: secretTrim }),
+    });
+
+    const data = await res.json();
+    setLoadingAll(false);
+
+    if (!res.ok) {
+      setMsg(data.error || "Failed to load profiles");
+      setAllRows([]);
+      return;
+    }
+
+    setAllRows((data.rows ?? []) as AllProfileRow[]);
+  }
+
+  const filteredAllRows = useMemo(() => {
+    const q = allSearch.trim().toLowerCase();
+    if (!q) return allRows;
+    return allRows.filter(
+      (r) =>
+        r.display_name.toLowerCase().includes(q) ||
+        r.username.toLowerCase().includes(q) ||
+        r.id.toLowerCase().includes(q) ||
+        r.city.toLowerCase().includes(q) ||
+        r.area.toLowerCase().includes(q)
+    );
+  }, [allRows, allSearch]);
 
   async function updateStatus(id: string, status: "approved" | "rejected") {
     if (!requireSecret()) return;
@@ -307,7 +361,8 @@ export default function AdminPage() {
     }
 
     setMsg("Profile archived.");
-    await loadReports();
+    if (tab === "all") await loadAll();
+    else await loadReports();
   }
 
   async function unarchiveProfile(profileId: string) {
@@ -326,7 +381,8 @@ export default function AdminPage() {
     }
 
     setMsg("Profile unarchived.");
-    await loadReports();
+    if (tab === "all") await loadAll();
+    else await loadReports();
   }
 
   async function deleteProfilePermanently(profileId: string) {
@@ -350,7 +406,8 @@ export default function AdminPage() {
     }
 
     setMsg(data.warning || "Profile permanently deleted.");
-    await loadReports();
+    if (tab === "all") await loadAll();
+    else await loadReports();
   }
 
   function withSearchId(fn: (id: string) => void) {
@@ -507,7 +564,8 @@ export default function AdminPage() {
                 tone="primary"
                 onClick={() => {
                   if (tab === "reports") loadReports();
-                  else loadPending();
+                  else if (tab === "pending") loadPending();
+                  else loadAll();
                 }}
               >
                 Refresh current tab
@@ -516,12 +574,13 @@ export default function AdminPage() {
                 onClick={() => {
                   setRows([]);
                   setReports([]);
+                  setAllRows([]);
                   setMsg(null);
                 }}
               >
                 Clear
               </Btn>
-              {loadingPending || loadingReports ? (
+              {loadingPending || loadingReports || loadingAll ? (
                 <span className="self-center text-sm text-[#c9a7b3]">Loading…</span>
               ) : null}
             </div>
@@ -543,6 +602,15 @@ export default function AdminPage() {
                 className={tab === "pending" ? "!border-[#ff115a] !bg-[#ff115a] !text-white" : ""}
               >
                 Pending
+              </Btn>
+              <Btn
+                onClick={() => {
+                  setTab("all");
+                  if (allRows.length === 0) loadAll();
+                }}
+                className={tab === "all" ? "!border-[#ff115a] !bg-[#ff115a] !text-white" : ""}
+              >
+                All
               </Btn>
             </div>
 
@@ -800,6 +868,93 @@ export default function AdminPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        ) : null}
+
+        {/* ALL PROFILES TAB */}
+        {tab === "all" ? (
+          <div className="rounded-2xl border border-white/10 bg-[#150109] p-4">
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <div className="grid gap-1">
+                <h2 className="text-lg font-bold text-[#fbecef]">All Profiles</h2>
+                <div className="text-sm text-[#8f6b78]">
+                  Every profile, regardless of status. Search by name, username, ID, city, or area.
+                </div>
+              </div>
+
+              <div className="flex gap-2 items-center">
+                <input
+                  className="rounded-xl border border-white/10 bg-[#220413] px-3 py-2 text-sm text-[#fbecef] w-[240px] max-w-full placeholder:text-[#8f6b78]"
+                  placeholder="Search..."
+                  value={allSearch}
+                  onChange={(e) => setAllSearch(e.target.value)}
+                />
+                <Btn onClick={loadAll}>Load</Btn>
+              </div>
+            </div>
+
+            <div className="mt-4 text-sm text-[#8f6b78]">
+              Showing {filteredAllRows.length} of {allRows.length}
+            </div>
+
+            <div className="mt-3 grid gap-3">
+              {filteredAllRows.length === 0 && !loadingAll ? (
+                <div className="text-[#8f6b78]">
+                  {allRows.length === 0 ? "No profiles loaded yet." : "No matches for that search."}
+                </div>
+              ) : null}
+
+              {filteredAllRows.map((row) => {
+                const statusTone =
+                  row.status === "approved" ? "good" : row.status === "pending" ? "warn" : "bad";
+                const activeTone = row.is_active ? "good" : "bad";
+                const archived = !!row.deleted_at;
+
+                return (
+                  <div key={row.id} className="rounded-2xl border border-white/10 p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="font-semibold text-[#fbecef] truncate">
+                          {row.display_name} • {row.age} • {row.gender}
+                        </div>
+                        <div className="text-sm text-[#8f6b78] truncate">
+                          @{row.username} • {row.city}, {row.area}
+                        </div>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          <Badge tone={statusTone as any}>status: {row.status}</Badge>
+                          <Badge tone={activeTone as any}>
+                            active: {row.is_active ? "true" : "false"}
+                          </Badge>
+                          {archived ? <Badge tone="bad">archived</Badge> : null}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <Btn onClick={() => copyText("Profile ID", row.id)}>Copy ID</Btn>
+                        <Link
+                          className="underline text-sm text-[#c9a7b3] hover:text-[#ff5f8f]"
+                          href={`/profile/${row.username}`}
+                        >
+                          View
+                        </Link>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <Btn onClick={() => openManagePhotos(row.id)}>Manage photos</Btn>
+                      {archived ? (
+                        <Btn onClick={() => unarchiveProfile(row.id)}>Unarchive</Btn>
+                      ) : (
+                        <Btn onClick={() => archiveProfile(row.id)}>Archive</Btn>
+                      )}
+                      <Btn tone="danger" onClick={() => deleteProfilePermanently(row.id)}>
+                        Delete permanently
+                      </Btn>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         ) : null}
