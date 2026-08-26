@@ -67,5 +67,5 @@ body {
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
-  animation: gradient-slide 3s ease-in-out infinite alternate;
+  animation: gradient-slide 6s ease-in-out infinite alternate;
 }
