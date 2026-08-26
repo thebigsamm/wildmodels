@@ -35,8 +35,8 @@ export default function Home() {
             </Button>
           </div>
 
-          <p className="mt-8 text-xs text-[#8f6b78]">
-            18+ only. Report &amp; ban tools are coming next.
+          <p className="mt-8 text-lg font-semibold text-[#8f6b78]">
+            18+ only.
           </p>
         </div>
       </div>
