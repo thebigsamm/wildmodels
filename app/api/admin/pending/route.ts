@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
 
     const { data, error } = await supabaseAdmin
       .from("profiles")
-      .select("id, display_name, gender, age, city, area, status, created_at")
+      .select("id, username, display_name, gender, age, city, area, status, created_at")
       .eq("status", "pending")
       .is("deleted_at", null)
       .order("created_at", { ascending: false });

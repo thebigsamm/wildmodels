@@ -9,7 +9,7 @@ export default function LoginPage() {
   const supabase = createClient();
   const router = useRouter();
 
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -19,16 +19,35 @@ export default function LoginPage() {
     setLoading(true);
     setMessage("");
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const trimmed = identifier.trim();
+    const isEmail = trimmed.includes("@");
 
-    setLoading(false);
+    if (isEmail) {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: trimmed,
+        password,
+      });
 
-    if (error) {
-      setMessage(error.message);
-      return;
+      setLoading(false);
+
+      if (error) {
+        setMessage(error.message);
+        return;
+      }
+    } else {
+      const res = await fetch("/api/auth/login-username", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: trimmed, password }),
+      });
+      const data = await res.json();
+
+      setLoading(false);
+
+      if (!res.ok) {
+        setMessage(data.error || "Login failed.");
+        return;
+      }
     }
 
     router.push("/dashboard");
@@ -44,11 +63,11 @@ export default function LoginPage() {
 
         <form onSubmit={handleLogin} className="space-y-4">
           <input
-            type="email"
-            placeholder="Email"
+            type="text"
+            placeholder="Username or email"
             className="w-full rounded-lg border border-white/10 bg-[#220413] px-4 py-3 text-[#fbecef] placeholder:text-[#8f6b78]"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={identifier}
+            onChange={(e) => setIdentifier(e.target.value)}
             required
           />
 

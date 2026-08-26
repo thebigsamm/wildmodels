@@ -3,11 +3,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { isValidUsername, normalizeUsername } from "@/lib/username";
 
 export default function RegisterPage() {
   const supabase = createClient();
   const router = useRouter();
 
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -15,22 +17,66 @@ export default function RegisterPage() {
 
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault();
-    setLoading(true);
     setMessage("");
 
-    const { error } = await supabase.auth.signUp({
+    const normalizedUsername = normalizeUsername(username);
+
+    if (!isValidUsername(normalizedUsername)) {
+      setMessage(
+        "Username must be 3-20 characters: lowercase letters, numbers, underscore, starting with a letter."
+      );
+      return;
+    }
+
+    setLoading(true);
+
+    const availRes = await fetch("/api/auth/check-username", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: normalizedUsername }),
+    });
+    const availData = await availRes.json();
+
+    if (!availRes.ok || !availData.available) {
+      setLoading(false);
+      setMessage(availData.error || "That username is already taken.");
+      return;
+    }
+
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
     });
 
-    setLoading(false);
-
     if (error) {
+      setLoading(false);
       setMessage(error.message);
       return;
     }
 
-    setMessage("Account created. You can now log in.");
+    if (!data.user) {
+      setLoading(false);
+      setMessage("Account created. Check your email to confirm, then log in.");
+      return;
+    }
+
+    const claimRes = await fetch("/api/auth/claim-username", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: data.user.id, username: normalizedUsername }),
+    });
+    const claimData = await claimRes.json();
+
+    setLoading(false);
+
+    if (!claimRes.ok) {
+      setMessage(
+        `Account created, but your username couldn't be saved: ${claimData.error || "unknown error"}. You can still log in with your email.`
+      );
+      return;
+    }
+
+    setMessage("Account created. Check your email to confirm, then log in.");
     router.push("/login");
   }
 
@@ -42,6 +88,15 @@ export default function RegisterPage() {
         </h1>
 
         <form onSubmit={handleRegister} className="space-y-4">
+          <input
+            type="text"
+            placeholder="Username"
+            className="w-full rounded-lg border border-white/10 bg-[#220413] px-4 py-3 text-[#fbecef] placeholder:text-[#8f6b78]"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+
           <input
             type="email"
             placeholder="Email"

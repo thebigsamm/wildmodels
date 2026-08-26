@@ -135,12 +135,31 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 6) Create profile first (pending)
+    // 6) Look up this account's username (set at registration)
+    const { data: usernameRow, error: usernameErr } = await supabaseAdmin
+      .from("usernames")
+      .select("username")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (usernameErr) {
+      return NextResponse.json({ error: usernameErr.message }, { status: 400 });
+    }
+
+    if (!usernameRow) {
+      return NextResponse.json(
+        { error: "Your account doesn't have a username on file. Please contact support." },
+        { status: 400 }
+      );
+    }
+
+    // 7) Create profile first (pending)
     const { data: profile, error: profileErr } = await supabaseAdmin
       .from("profiles")
       .insert([
         {
           user_id: user.id,
+          username: usernameRow.username,
           display_name,
           gender,
           age,

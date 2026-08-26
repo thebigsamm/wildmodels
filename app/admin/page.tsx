@@ -5,6 +5,7 @@ import Link from "next/link";
 
 type ProfileRow = {
   id: string;
+  username: string;
   display_name: string;
   gender: string;
   age: number;
@@ -25,6 +26,7 @@ type ReportRow = {
   closed_at: string | null;
   profiles: {
     id: string;
+    username: string;
     display_name: string;
     gender: string;
     age: number;
@@ -649,12 +651,14 @@ export default function AdminPage() {
                         <Btn onClick={() => copyText("Profile ID", r.profile_id)}>
                           Copy ID
                         </Btn>
-                        <Link
-                          className="underline text-sm text-[#c9a7b3] hover:text-[#ff5f8f]"
-                          href={`/profile/${r.profile_id}`}
-                        >
-                          View profile
-                        </Link>
+                        {pr ? (
+                          <Link
+                            className="underline text-sm text-[#c9a7b3] hover:text-[#ff5f8f]"
+                            href={`/profile/${pr.username}`}
+                          >
+                            View profile
+                          </Link>
+                        ) : null}
                       </div>
                     </div>
 
@@ -778,7 +782,7 @@ export default function AdminPage() {
                       <Btn onClick={() => copyText("Profile ID", r.id)}>Copy ID</Btn>
                       <Link
                         className="underline text-sm text-[#c9a7b3] hover:text-[#ff5f8f]"
-                        href={`/profile/${r.id}`}
+                        href={`/profile/${r.username}`}
                       >
                         View
                       </Link>

@@ -17,7 +17,7 @@ export default async function DashboardPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, display_name, city, area, status, is_active")
+    .select("id, username, display_name, city, area, status, is_active")
     .eq("user_id", user.id)
     .is("deleted_at", null)
     .maybeSingle();
@@ -74,7 +74,7 @@ export default async function DashboardPage() {
 
             <div className="mt-4 flex flex-wrap gap-3">
               <a
-                href={`/profile/${profile.id}`}
+                href={`/profile/${profile.username}`}
                 className="rounded-full border border-white/20 px-4 py-2 text-sm font-bold text-[#fbecef] hover:bg-white/5"
               >
                 View public profile

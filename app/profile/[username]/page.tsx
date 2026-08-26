@@ -38,11 +38,11 @@ export default function ProfilePage() {
   const [reportDetails, setReportDetails] = useState("");
   const [reportMsg, setReportMsg] = useState<string | null>(null);
 
-  const params = useParams<{ id: string }>();
-  const id = params?.id;
-  
+  const params = useParams<{ username: string }>();
+  const username = params?.username;
+
   useEffect(() => {
-    if (!id) return;
+    if (!username) return;
 
     (async () => {
       setLoading(true);
@@ -52,7 +52,7 @@ export default function ProfilePage() {
       const { data, error } = await supabase
         .from("profiles")
         .select("id, display_name, gender, age, city, area, bio, photo_url, whatsapp, telegram")
-        .eq("id", id)
+        .eq("username", username)
         .eq("status", "approved")
         .eq("is_active", true)
         .is("deleted_at", null)
@@ -68,21 +68,22 @@ export default function ProfilePage() {
       const { data: ph } = await supabase
         .from("profile_photos")
         .select("url, sort_order")
-        .eq("profile_id", id)
+        .eq("profile_id", data.id)
         .order("sort_order", { ascending: true });
 
       setPhotos((ph ?? []).map((x: any) => x.url));
       setLoading(false);
     })();
-  }, [id]);
+  }, [username]);
 
   async function submitReport() {
+    if (!p) return;
     setReportMsg(null);
     const res = await fetch("/api/reports/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        profileId: id,
+        profileId: p.id,
         reason: reportReason,
         details: reportDetails,
       }),
@@ -98,10 +99,10 @@ export default function ProfilePage() {
     setReportDetails("");
   }
 
-  if (!id) return <main className="min-h-screen bg-[#060002] p-6 text-[#c9a7b3]">Loading…</main>;
+  if (!username) return <main className="min-h-screen bg-[#060002] p-6 text-[#c9a7b3]">Loading…</main>;
   if (loading) return <main className="min-h-screen bg-[#060002] p-6 text-[#c9a7b3]">Loading…</main>;
   if (!p) return <main className="min-h-screen bg-[#060002] p-6 text-[#c9a7b3]">Profile not available.</main>;
-  
+
   const whatsappDisplay =
     p.whatsapp ? (showContact ? p.whatsapp : maskPhone(p.whatsapp)) : null;
 

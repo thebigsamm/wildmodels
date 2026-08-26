@@ -9,6 +9,7 @@ import { NG_TOP_STATES } from "@/lib/ngStates";
 
 type Profile = {
   id: string;
+  username: string;
   display_name: string;
   gender: "female" | "male" | "nonbinary";
   age: number;
@@ -160,7 +161,7 @@ export default function Page() {
       // Since RLS only shows approved+active, guests will only see live profiles
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, display_name, gender, age, city, area, bio, photo_url")
+        .select("id, username, display_name, gender, age, city, area, bio, photo_url")
         .eq("status", "approved")
         .eq("is_active", true)
         .is("deleted_at", null)
@@ -346,7 +347,7 @@ export default function Page() {
           {filtered.map((p, i) => (
             <Link
               key={p.id}
-              href={`/profile/${p.id}`}
+              href={`/profile/${p.username}`}
               className="group overflow-hidden rounded-2xl border border-[#ff115a]/25 bg-[#150109] shadow-[0_16px_34px_-18px_rgba(255,17,90,0.4)] transition hover:border-[#ff115a]/50"
             >
               <div className="aspect-[4/3] overflow-hidden">

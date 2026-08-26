@@ -27,6 +27,7 @@ export async function POST(req: Request) {
       closed_at,
       profiles:profile_id (
         id,
+        username,
         display_name,
         gender,
         age,
