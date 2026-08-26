@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { SiteHeader } from "@/components/SiteHeader";
 
 export default function LoginPage() {
   const supabase = createClient();
@@ -56,6 +57,9 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-screen bg-[#060002]">
+      <Suspense fallback={<div className="h-14 border-b border-white/10 bg-[#060002]/90 backdrop-blur" />}>
+        <SiteHeader />
+      </Suspense>
       <div className="mx-auto max-w-md px-4 py-16">
         <h1 className="mb-6 font-[family-name:var(--font-display)] text-3xl uppercase text-[#fbecef]">
           Log in
