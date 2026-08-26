@@ -13,6 +13,7 @@ export default function CreateProfilePage() {
   const supabase = createClient();
 
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [hasProfile, setHasProfile] = useState(false);
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
@@ -35,6 +36,17 @@ export default function CreateProfilePage() {
       if (!user) {
         router.replace("/login");
         return;
+      }
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("user_id", user.id)
+        .is("deleted_at", null)
+        .maybeSingle();
+
+      if (profile) {
+        setHasProfile(true);
       }
 
       setCheckingAuth(false);
@@ -117,6 +129,38 @@ export default function CreateProfilePage() {
         </Suspense>
         <div className="mx-auto max-w-3xl px-6 py-8">
           <p className="text-sm text-[#c9a7b3]">Checking account...</p>
+        </div>
+      </main>
+    );
+  }
+
+  if (hasProfile) {
+    return (
+      <main className="min-h-screen bg-[#060002]">
+        <Suspense
+          fallback={<div className="h-14 border-b border-white/10 bg-[#060002]/90 backdrop-blur" />}
+        >
+          <SiteHeader />
+        </Suspense>
+
+        <div className="mx-auto max-w-3xl px-6 py-8">
+          <h1 className="font-[family-name:var(--font-display)] text-3xl uppercase text-[#fbecef]">
+            Create Profile
+          </h1>
+
+          <div className="mt-6 rounded-2xl border border-white/10 bg-[#150109] p-5">
+            <p className="text-[#fbecef]">You already have a public profile.</p>
+            <p className="mt-2 text-sm text-[#c9a7b3]">
+              Each account can only manage one profile at a time. Head to your dashboard to edit it,
+              manage photos, or delete it if you want to start over.
+            </p>
+            <a
+              href="/dashboard"
+              className="mt-4 inline-block rounded-full bg-gradient-to-r from-[#ff115a] to-[#c400ff] px-5 py-2.5 font-bold text-[#060002] shadow-[0_0_20px_rgba(255,17,90,0.4)] hover:opacity-90"
+            >
+              Go to dashboard
+            </a>
+          </div>
         </div>
       </main>
     );
