@@ -153,7 +153,18 @@ export default function ProfilePage() {
               <div className="flex items-center justify-between gap-3">
                 <div className="text-[#e8d1d8]">
                   WhatsApp:{" "}
-                  <span className="font-mono text-[#fbecef]">{whatsappDisplay}</span>
+                  {showContact ? (
+                    <a
+                      className="font-mono text-[#ff5f8f] underline"
+                      href={`https://wa.me/${p.whatsapp.replace(/[^\d]/g, "")}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {whatsappDisplay}
+                    </a>
+                  ) : (
+                    <span className="font-mono text-[#fbecef]">{whatsappDisplay}</span>
+                  )}
                 </div>
                 {!showContact ? (
                   <button
