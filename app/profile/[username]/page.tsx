@@ -200,7 +200,7 @@ export default function ProfilePage() {
             ) : null}
 
             <p className="text-xs text-[#8f6b78] mt-3">
-              Contacts are shown only on profile pages to reduce scraping.
+              Click the number or username to open a direct chat.
             </p>
           </div>
 
