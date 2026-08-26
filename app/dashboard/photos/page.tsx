@@ -261,7 +261,10 @@ export default function ManagePhotosPage() {
         <SiteHeader />
       </Suspense>
       <div className="mx-auto max-w-5xl px-4 py-10">
-      <h1 className="font-[family-name:var(--font-display)] text-3xl uppercase text-[#fbecef]">
+      <a href="/dashboard" className="text-sm font-semibold text-[#ff5f8f] hover:text-[#fbecef]">
+        ← Back to dashboard
+      </a>
+      <h1 className="mt-4 font-[family-name:var(--font-display)] text-3xl uppercase text-[#fbecef]">
         Manage Photos
       </h1>
 
