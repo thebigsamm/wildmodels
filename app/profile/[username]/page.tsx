@@ -199,7 +199,7 @@ export default function ProfilePage() {
               </div>
             ) : null}
 
-            <p className="text-xs text-[#8f6b78] mt-3">
+            <p className="text-xs font-semibold italic text-[#8f6b78] mt-3">
               Click the number or username to open a direct chat.
             </p>
           </div>
