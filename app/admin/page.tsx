@@ -61,12 +61,12 @@ function Badge({
 }) {
   const toneClass =
     tone === "good"
-      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+      ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
       : tone === "warn"
-      ? "border-amber-200 bg-amber-50 text-amber-700"
+      ? "border-amber-500/30 bg-amber-500/10 text-amber-300"
       : tone === "bad"
-      ? "border-rose-200 bg-rose-50 text-rose-700"
-      : "border-black/10 bg-black/5 text-black/70";
+      ? "border-rose-500/30 bg-rose-500/10 text-rose-300"
+      : "border-white/10 bg-white/5 text-[#c9a7b3]";
 
   return (
     <span
@@ -94,10 +94,10 @@ function Btn({
     "inline-flex items-center justify-center rounded-lg px-3 py-2 text-sm border transition disabled:opacity-50 disabled:cursor-not-allowed";
   const toneClass =
     tone === "primary"
-      ? "border-black bg-black text-white hover:bg-black/90"
+      ? "border-[#ff115a] bg-[#ff115a] text-white hover:bg-[#e00e50]"
       : tone === "danger"
-      ? "border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100"
-      : "border-black/10 bg-white hover:bg-black/5";
+      ? "border-rose-500/30 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20"
+      : "border-white/10 bg-[#220413] text-[#fbecef] hover:bg-white/5";
   return (
     <button
       className={`${base} ${toneClass} ${className}`}
@@ -389,17 +389,17 @@ export default function AdminPage() {
   }
 
   return (
-    <main className="min-h-screen bg-white">
-      <div className="sticky top-0 z-20 border-b border-black/10 bg-white/80 backdrop-blur">
+    <main className="min-h-screen bg-[#060002]">
+      <div className="sticky top-0 z-20 border-b border-white/10 bg-[#060002]/90 backdrop-blur">
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
           <div>
-            <div className="text-lg font-semibold">Admin</div>
-            <div className="text-xs text-black/60">Moderation dashboard</div>
+            <div className="text-lg font-bold text-[#fbecef]">Admin</div>
+            <div className="text-xs text-[#8f6b78]">Moderation dashboard</div>
           </div>
 
           <div className="flex items-center gap-3">
             <Link
-              className="text-sm underline text-black/70 hover:text-black"
+              className="text-sm text-[#c9a7b3] hover:text-[#ff5f8f]"
               href="/"
             >
               Home
@@ -410,12 +410,12 @@ export default function AdminPage() {
 
       <div className="mx-auto max-w-6xl px-6 py-8 grid gap-6">
         {/* Top card */}
-        <div className="rounded-2xl border border-black/10 bg-white p-4 shadow-sm">
+        <div className="rounded-2xl border border-white/10 bg-[#150109] p-4">
           <div className="grid gap-3 md:grid-cols-[1fr_auto] md:items-end">
             <label className="grid gap-1">
-              <span className="text-sm text-black/70">Admin secret</span>
+              <span className="text-sm text-[#c9a7b3]">Admin secret</span>
               <input
-                className="border border-black/10 rounded-xl p-3 outline-none focus:ring-2 focus:ring-black/10"
+                className="rounded-xl border border-white/10 bg-[#220413] p-3 text-[#fbecef] outline-none focus:ring-2 focus:ring-[#ff115a]/40"
                 type="password"
                 value={secret}
                 onChange={(e) => setSecret(e.target.value)}
@@ -443,33 +443,25 @@ export default function AdminPage() {
                 Clear
               </Btn>
               {loadingPending || loadingReports ? (
-                <span className="self-center text-sm">Loading…</span>
+                <span className="self-center text-sm text-[#c9a7b3]">Loading…</span>
               ) : null}
             </div>
           </div>
 
-          {msg ? <div className="mt-3 text-sm text-black/70">{msg}</div> : null}
+          {msg ? <div className="mt-3 text-sm text-[#ff5f8f]">{msg}</div> : null}
 
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-black/10 pt-4">
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
             {/* Tabs */}
             <div className="flex gap-2">
               <Btn
                 onClick={() => setTab("reports")}
-                className={
-                  tab === "reports"
-                    ? "bg-black text-white border-black hover:bg-black/90"
-                    : ""
-                }
+                className={tab === "reports" ? "!border-[#ff115a] !bg-[#ff115a] !text-white" : ""}
               >
                 Reports
               </Btn>
               <Btn
                 onClick={() => setTab("pending")}
-                className={
-                  tab === "pending"
-                    ? "bg-black text-white border-black hover:bg-black/90"
-                    : ""
-                }
+                className={tab === "pending" ? "!border-[#ff115a] !bg-[#ff115a] !text-white" : ""}
               >
                 Pending
               </Btn>
@@ -478,7 +470,7 @@ export default function AdminPage() {
             {/* Quick photo manage */}
             <div className="flex flex-wrap gap-2 items-center">
               <input
-                className="border border-black/10 rounded-xl px-3 py-2 text-sm w-[280px] max-w-full"
+                className="rounded-xl border border-white/10 bg-[#220413] px-3 py-2 text-sm text-[#fbecef] w-[280px] max-w-full placeholder:text-[#8f6b78]"
                 placeholder="Profile ID → Manage photos"
                 value={photoSearchId}
                 onChange={(e) => setPhotoSearchId(e.target.value)}
@@ -501,11 +493,11 @@ export default function AdminPage() {
 
         {/* REPORTS TAB */}
         {tab === "reports" ? (
-          <div className="rounded-2xl border border-black/10 bg-white p-4 shadow-sm">
+          <div className="rounded-2xl border border-white/10 bg-[#150109] p-4">
             <div className="flex items-center justify-between gap-3">
               <div className="grid gap-1">
-                <h2 className="text-lg font-semibold">Reports Inbox</h2>
-                <div className="text-sm text-black/60">
+                <h2 className="text-lg font-bold text-[#fbecef]">Reports Inbox</h2>
+                <div className="text-sm text-[#8f6b78]">
                   Review reports and suspend profiles if needed.
                 </div>
               </div>
@@ -516,11 +508,7 @@ export default function AdminPage() {
                     setReportStatus("open");
                     loadReports("open");
                   }}
-                  className={
-                    reportStatus === "open"
-                      ? "bg-black text-white border-black hover:bg-black/90"
-                      : ""
-                  }
+                  className={reportStatus === "open" ? "!border-[#ff115a] !bg-[#ff115a] !text-white" : ""}
                 >
                   Open
                 </Btn>
@@ -529,11 +517,7 @@ export default function AdminPage() {
                     setReportStatus("closed");
                     loadReports("closed");
                   }}
-                  className={
-                    reportStatus === "closed"
-                      ? "bg-black text-white border-black hover:bg-black/90"
-                      : ""
-                  }
+                  className={reportStatus === "closed" ? "!border-[#ff115a] !bg-[#ff115a] !text-white" : ""}
                 >
                   Closed
                 </Btn>
@@ -543,7 +527,7 @@ export default function AdminPage() {
 
             <div className="mt-4 grid gap-3">
               {reports.length === 0 && !loadingReports ? (
-                <div className="text-black/60">
+                <div className="text-[#8f6b78]">
                   No {reportStatus} reports (or not loaded yet).
                 </div>
               ) : null}
@@ -566,25 +550,25 @@ export default function AdminPage() {
                 const activeTone = pr?.is_active ? "good" : "bad";
 
                 return (
-                  <div key={r.id} className="rounded-2xl border border-black/10 p-4">
+                  <div key={r.id} className="rounded-2xl border border-white/10 p-4">
                     <div className="flex items-start justify-between gap-4">
                       <div className="grid gap-1">
                         <div className="flex flex-wrap items-center gap-2">
-                          <div className="font-medium">{r.reason}</div>
+                          <div className="font-semibold text-[#fbecef]">{r.reason}</div>
                           <Badge tone={r.status === "open" ? "warn" : "neutral"}>
                             {r.status}
                           </Badge>
-                          <span className="text-xs text-black/50">
+                          <span className="text-xs text-[#8f6b78]">
                             • {fmtDate(r.created_at)}
                           </span>
                         </div>
 
                         {r.details ? (
-                          <div className="text-sm text-black/70 whitespace-pre-wrap">
+                          <div className="text-sm text-[#c9a7b3] whitespace-pre-wrap">
                             {r.details}
                           </div>
                         ) : (
-                          <div className="text-sm text-black/50">
+                          <div className="text-sm text-[#8f6b78]">
                             No details provided.
                           </div>
                         )}
@@ -595,7 +579,7 @@ export default function AdminPage() {
                           Copy ID
                         </Btn>
                         <Link
-                          className="underline text-sm text-black/70 hover:text-black"
+                          className="underline text-sm text-[#c9a7b3] hover:text-[#ff5f8f]"
                           href={`/profile/${r.profile_id}`}
                         >
                           View profile
@@ -603,10 +587,10 @@ export default function AdminPage() {
                       </div>
                     </div>
 
-                    <div className="mt-3 rounded-xl border border-black/10 p-3">
+                    <div className="mt-3 rounded-xl border border-white/10 p-3">
                       {pr ? (
                         <div className="flex items-center gap-3">
-                          <div className="h-12 w-12 rounded-lg overflow-hidden bg-black/5 shrink-0">
+                          <div className="h-12 w-12 rounded-lg overflow-hidden bg-white/5 shrink-0">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             {pr.photo_url ? (
                               <img
@@ -618,11 +602,11 @@ export default function AdminPage() {
                           </div>
 
                           <div className="min-w-0 flex-1">
-                            <div className="font-medium truncate">
+                            <div className="font-semibold text-[#fbecef] truncate">
                               {pr.display_name} • {pr.age} • {pr.gender}
                             </div>
 
-                            <div className="text-sm text-black/60 truncate">
+                            <div className="text-sm text-[#8f6b78] truncate">
                               {pr.city}, {pr.area}
                             </div>
 
@@ -635,7 +619,7 @@ export default function AdminPage() {
                           </div>
                         </div>
                       ) : (
-                        <div className="text-sm text-black/60">
+                        <div className="text-sm text-[#8f6b78]">
                           Profile record not available (maybe deleted).
                         </div>
                       )}
@@ -674,11 +658,11 @@ export default function AdminPage() {
 
         {/* PENDING TAB */}
         {tab === "pending" ? (
-          <div className="rounded-2xl border border-black/10 bg-white p-4 shadow-sm">
+          <div className="rounded-2xl border border-white/10 bg-[#150109] p-4">
             <div className="flex items-center justify-between gap-3">
               <div className="grid gap-1">
-                <h2 className="text-lg font-semibold">Pending Profiles</h2>
-                <div className="text-sm text-black/60">
+                <h2 className="text-lg font-bold text-[#fbecef]">Pending Profiles</h2>
+                <div className="text-sm text-[#8f6b78]">
                   Approve or reject submissions.
                 </div>
               </div>
@@ -690,24 +674,24 @@ export default function AdminPage() {
 
             <div className="mt-4 grid gap-3">
               {rows.length === 0 && !loadingPending ? (
-                <div className="text-black/60">
+                <div className="text-[#8f6b78]">
                   No pending profiles (or not loaded yet).
                 </div>
               ) : null}
 
               {rows.map((r) => (
-                <div key={r.id} className="rounded-2xl border border-black/10 p-4">
+                <div key={r.id} className="rounded-2xl border border-white/10 p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <div className="font-medium truncate">
+                      <div className="font-semibold text-[#fbecef] truncate">
                         {r.display_name} • {r.age} • {r.gender}
                       </div>
-                      <div className="text-sm text-black/60 truncate">
+                      <div className="text-sm text-[#8f6b78] truncate">
                         {r.city}, {r.area}
                       </div>
                       <div className="mt-2 flex flex-wrap gap-2">
                         <Badge tone="warn">status: pending</Badge>
-                        <span className="text-xs text-black/50">
+                        <span className="text-xs text-[#8f6b78]">
                           • {fmtDate(r.created_at)}
                         </span>
                       </div>
@@ -716,7 +700,7 @@ export default function AdminPage() {
                     <div className="flex items-center gap-2">
                       <Btn onClick={() => copyText("Profile ID", r.id)}>Copy ID</Btn>
                       <Link
-                        className="underline text-sm text-black/70 hover:text-black"
+                        className="underline text-sm text-[#c9a7b3] hover:text-[#ff5f8f]"
                         href={`/profile/${r.id}`}
                       >
                         View
@@ -742,13 +726,13 @@ export default function AdminPage() {
 
       {/* PHOTO MODAL */}
       {photoModalOpen && photoProfileId ? (
-        <div className="fixed inset-0 z-50 bg-black/50 grid place-items-center p-4">
-          <div className="w-full max-w-4xl rounded-2xl bg-white p-4">
+        <div className="fixed inset-0 z-50 bg-black/70 grid place-items-center p-4">
+          <div className="w-full max-w-4xl rounded-2xl bg-[#150109] border border-white/10 p-4">
             <div className="flex items-center justify-between gap-3">
               <div className="grid gap-1">
-                <div className="font-semibold">Manage Photos</div>
+                <div className="font-bold text-[#fbecef]">Manage Photos</div>
                 <div className="flex items-center gap-2">
-                  <div className="text-xs text-black/60 font-mono">{photoProfileId}</div>
+                  <div className="text-xs text-[#8f6b78] font-mono">{photoProfileId}</div>
                   <Btn
                     onClick={() => copyText("Profile ID", photoProfileId)}
                     className="px-2 py-1 text-xs"
@@ -760,18 +744,18 @@ export default function AdminPage() {
               <Btn onClick={closePhotoModal}>Close</Btn>
             </div>
 
-            {photoLoading ? <div className="mt-4 text-sm">Loading…</div> : null}
+            {photoLoading ? <div className="mt-4 text-sm text-[#c9a7b3]">Loading…</div> : null}
 
             <div className="mt-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {photoRows.map((ph, idx) => (
-                <div key={ph.id} className="border border-black/10 rounded-2xl overflow-hidden">
-                  <div className="aspect-[4/3] bg-black/5">
+                <div key={ph.id} className="border border-white/10 rounded-2xl overflow-hidden">
+                  <div className="aspect-[4/3] bg-white/5">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={ph.url} alt="photo" className="h-full w-full object-cover" />
                   </div>
 
                   <div className="p-3 grid gap-2">
-                    <div className="text-xs text-black/50">
+                    <div className="text-xs text-[#8f6b78]">
                       sort: {ph.sort_order} • #{idx + 1}
                     </div>
 
@@ -813,7 +797,7 @@ export default function AdminPage() {
             </div>
 
             {photoRows.length === 0 && !photoLoading ? (
-              <div className="mt-4 text-black/60">No photos found for this profile.</div>
+              <div className="mt-4 text-[#8f6b78]">No photos found for this profile.</div>
             ) : null}
           </div>
         </div>
@@ -821,7 +805,7 @@ export default function AdminPage() {
 
       {/* TOAST */}
       {toast ? (
-        <div className="fixed bottom-4 right-4 z-[60] rounded-xl border border-black/10 bg-white px-3 py-2 text-sm shadow">
+        <div className="fixed bottom-4 right-4 z-[60] rounded-xl border border-white/10 bg-[#150109] px-3 py-2 text-sm text-[#fbecef] shadow">
           {toast}
         </div>
       ) : null}
