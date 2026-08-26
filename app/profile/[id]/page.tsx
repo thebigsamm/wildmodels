@@ -98,20 +98,22 @@ export default function ProfilePage() {
     setReportDetails("");
   }
 
-  if (!id) return <main className="p-6">Loading…</main>;
-  if (loading) return <main className="p-6">Loading…</main>;
-  if (!p) return <main className="p-6">Profile not available.</main>;
+  if (!id) return <main className="min-h-screen bg-[#060002] p-6 text-[#c9a7b3]">Loading…</main>;
+  if (loading) return <main className="min-h-screen bg-[#060002] p-6 text-[#c9a7b3]">Loading…</main>;
+  if (!p) return <main className="min-h-screen bg-[#060002] p-6 text-[#c9a7b3]">Profile not available.</main>;
   
   const whatsappDisplay =
     p.whatsapp ? (showContact ? p.whatsapp : maskPhone(p.whatsapp)) : null;
 
   return (
-    <main className="min-h-screen bg-white">
-      <Suspense fallback={<div className="h-14 border-b border-black/10 bg-white/80 backdrop-blur" />}>
+    <main className="min-h-screen bg-[#060002] relative overflow-hidden">
+      <div className="pointer-events-none absolute -top-56 -left-40 h-[600px] w-[600px] rounded-full bg-[radial-gradient(circle,rgba(196,0,255,0.2),transparent_68%)]" />
+
+      <Suspense fallback={<div className="h-14 border-b border-white/10 bg-[#060002]/90 backdrop-blur" />}>
         <SiteHeader />
       </Suspense>
-      <div className="mx-auto max-w-5xl px-6 py-8">
-      <Link className="underline" href="/browse">
+      <div className="relative mx-auto max-w-5xl px-6 py-8">
+      <Link className="text-sm font-bold text-[#ff5f8f] hover:text-[#fbecef]" href="/browse">
         ← Back to Browse
       </Link>
 
@@ -119,41 +121,42 @@ export default function ProfilePage() {
         <div className="grid grid-cols-2 gap-2">
           {photos.length ? (
             photos.map((u) => (
-              <div key={u} className="rounded-xl overflow-hidden bg-gray-100 aspect-[4/3]">
+              <div key={u} className="rounded-2xl overflow-hidden bg-[#150109] aspect-[4/3]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={u} alt="photo" className="h-full w-full object-cover" />
               </div>
             ))
           ) : (
-            <div className="rounded-xl overflow-hidden bg-gray-100 aspect-[4/3] grid place-items-center text-gray-500">
-              No photos
+            <div className="col-span-2 rounded-2xl overflow-hidden bg-gradient-to-br from-[#ff115a] via-[#c400ff] to-[#3a0059] aspect-[4/3] grid place-items-center">
+              <span className="font-[family-name:var(--font-display)] text-8xl text-black/30">
+                {p.display_name?.[0]?.toUpperCase() ?? "?"}
+              </span>
             </div>
           )}
         </div>
 
         <div>
-          <h1 className="text-2xl font-semibold">
-            {p.display_name} • {p.age}
+          <h1 className="font-[family-name:var(--font-display)] text-4xl uppercase text-[#fbecef]">
+            {p.display_name} <span className="text-[#ff5f8f] text-2xl">· {p.age}</span>
           </h1>
-          <p className="text-gray-600 mt-1">
-            {p.city}, {p.area} • {p.gender}
+          <p className="text-[#c9a7b3] mt-2 text-sm">
+            {p.city}, {p.area} · {p.gender}
           </p>
 
-          {p.bio ? <p className="mt-4">{p.bio}</p> : null}
+          {p.bio ? <p className="mt-5 text-[#e8d1d8] leading-relaxed">{p.bio}</p> : null}
 
-          <div className="mt-6 border rounded-xl p-4">
-            <div className="font-medium mb-2">Contacts</div>
-
+          <div className="mt-6 rounded-2xl border border-[#ff115a]/30 bg-[#150109] p-5">
+            <div className="font-extrabold text-sm uppercase tracking-wide text-[#ff5f8f] mb-3">Contacts</div>
 
             {p.whatsapp ? (
               <div className="flex items-center justify-between gap-3">
-                <div>
+                <div className="text-[#e8d1d8]">
                   WhatsApp:{" "}
-                  <span className="font-mono">{whatsappDisplay}</span>
+                  <span className="font-mono text-[#fbecef]">{whatsappDisplay}</span>
                 </div>
                 {!showContact ? (
                   <button
-                    className="border rounded px-3 py-1 hover:bg-gray-50"
+                    className="rounded-full bg-gradient-to-r from-[#ff115a] to-[#c400ff] px-4 py-2 text-sm font-extrabold text-[#060002] hover:opacity-90"
                     onClick={() => setShowContact(true)}
                   >
                     Show full
@@ -161,15 +164,15 @@ export default function ProfilePage() {
                 ) : null}
               </div>
             ) : (
-              <div className="text-gray-600">No WhatsApp provided.</div>
+              <div className="text-[#8f6b78]">No WhatsApp provided.</div>
             )}
 
             {p.telegram ? (
-              <div className="mt-3">
+              <div className="mt-3 text-[#e8d1d8]">
                 Telegram:{" "}
                 {showContact ? (
                   <a
-                    className="underline"
+                    className="underline text-[#ff5f8f]"
                     href={`https://t.me/${p.telegram.replace("@", "")}`}
                     target="_blank"
                     rel="noreferrer"
@@ -177,21 +180,21 @@ export default function ProfilePage() {
                     @{p.telegram.replace("@", "")}
                   </a>
                 ) : (
-                  <span className="font-mono">
+                  <span className="font-mono text-[#fbecef]">
                     @{p.telegram.replace("@", "").slice(0, 3)}***
                   </span>
                 )}
               </div>
             ) : null}
 
-            <p className="text-xs text-gray-500 mt-3">
+            <p className="text-xs text-[#8f6b78] mt-3">
               Contacts are shown only on profile pages to reduce scraping.
             </p>
           </div>
-          
-          <div className="mt-6 rounded-2xl border border-black/10 bg-white p-4">
+
+          <div className="mt-6 rounded-2xl border border-white/10 bg-transparent p-4">
             <div className="flex items-center justify-between">
-              <div className="font-medium">Report</div>
+              <div className="font-bold text-[#e8d1d8]">Report</div>
               <Button
                 variant="outline"
                 onClick={() => {
@@ -206,7 +209,7 @@ export default function ProfilePage() {
             {reportOpen ? (
               <div className="mt-4 grid gap-3">
                 <select
-                  className="border rounded p-2"
+                  className="rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef]"
                   value={reportReason}
                   onChange={(e) => setReportReason(e.target.value)}
                 >
@@ -218,7 +221,7 @@ export default function ProfilePage() {
                 </select>
 
                 <textarea
-                  className="border rounded p-2"
+                  className="rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef] placeholder:text-[#8f6b78]"
                   rows={3}
                   placeholder="Optional details…"
                   value={reportDetails}
@@ -229,7 +232,7 @@ export default function ProfilePage() {
                   Submit report
                 </Button>
 
-                {reportMsg ? <div className="text-sm text-black/70">{reportMsg}</div> : null}
+                {reportMsg ? <div className="text-sm text-[#c9a7b3]">{reportMsg}</div> : null}
               </div>
             ) : null}
           </div>
