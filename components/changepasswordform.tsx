@@ -44,7 +44,7 @@ export default function ChangePasswordForm() {
       <input
         type="password"
         placeholder="New password"
-        className="rounded-lg border p-2 text-sm"
+        className="rounded-lg border border-white/10 bg-[#220413] p-2 text-sm text-[#fbecef] placeholder:text-[#8f6b78]"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         required
@@ -53,7 +53,7 @@ export default function ChangePasswordForm() {
       <input
         type="password"
         placeholder="Confirm new password"
-        className="rounded-lg border p-2 text-sm"
+        className="rounded-lg border border-white/10 bg-[#220413] p-2 text-sm text-[#fbecef] placeholder:text-[#8f6b78]"
         value={confirmPassword}
         onChange={(e) => setConfirmPassword(e.target.value)}
         required
@@ -62,12 +62,12 @@ export default function ChangePasswordForm() {
       <button
         type="submit"
         disabled={saving}
-        className="rounded-lg border px-4 py-2 text-sm disabled:opacity-50"
+        className="rounded-full border border-white/20 px-4 py-2 text-sm font-bold text-[#fbecef] hover:bg-white/5 disabled:opacity-50"
       >
         {saving ? "Saving..." : "Update password"}
       </button>
 
-      {message ? <p className="text-sm">{message}</p> : null}
+      {message ? <p className="text-sm text-[#ff5f8f]">{message}</p> : null}
     </form>
   );
 }

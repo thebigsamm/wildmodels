@@ -109,100 +109,106 @@ export default function EditProfilePage() {
 
   if (loading) {
     return (
-      <main className="mx-auto max-w-2xl px-4 py-10">
-        <p>Loading...</p>
+      <main className="min-h-screen bg-[#060002]">
+        <div className="mx-auto max-w-2xl px-4 py-10">
+          <p className="text-[#c9a7b3]">Loading...</p>
+        </div>
       </main>
     );
   }
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-10">
-      <h1 className="text-2xl font-semibold">Edit Profile</h1>
+    <main className="min-h-screen bg-[#060002]">
+      <div className="mx-auto max-w-2xl px-4 py-10">
+        <h1 className="font-[family-name:var(--font-display)] text-3xl uppercase text-[#fbecef]">
+          Edit Profile
+        </h1>
 
-      <div className="mt-6 grid gap-3 rounded-xl border p-5">
-        <label className="grid gap-1">
-          <span className="text-sm">Display name</span>
-          <input
-            className="rounded border p-2"
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-          />
-        </label>
+        <div className="mt-6 grid gap-3 rounded-2xl border border-white/10 bg-[#150109] p-5">
+          <label className="grid gap-1">
+            <span className="text-sm text-[#c9a7b3]">Display name</span>
+            <input
+              className="rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef]"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+            />
+          </label>
 
-        <label className="grid gap-1">
-          <span className="text-sm">Age</span>
-          <input
-            className="rounded border p-2"
-            type="number"
-            min={18}
-            max={99}
-            value={age}
-            onChange={(e) => setAge(Number(e.target.value))}
-          />
-        </label>
+          <label className="grid gap-1">
+            <span className="text-sm text-[#c9a7b3]">Age</span>
+            <input
+              className="rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef]"
+              type="number"
+              min={18}
+              max={99}
+              value={age}
+              onChange={(e) => setAge(Number(e.target.value))}
+            />
+          </label>
 
-        <label className="grid gap-1">
-          <span className="text-sm">State</span>
-          <select
-            className="rounded border p-2"
-            value={city}
-            onChange={(e) => setCity(e.target.value as NgTopState | "")}
+          <label className="grid gap-1">
+            <span className="text-sm text-[#c9a7b3]">State</span>
+            <select
+              className="rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef]"
+              value={city}
+              onChange={(e) => setCity(e.target.value as NgTopState | "")}
+            >
+              <option value="">Select a state</option>
+              {NG_TOP_STATES.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="grid gap-1">
+            <span className="text-sm text-[#c9a7b3]">Area</span>
+            <input
+              className="rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef]"
+              value={area}
+              onChange={(e) => setArea(e.target.value)}
+            />
+          </label>
+
+          <label className="grid gap-1">
+            <span className="text-sm text-[#c9a7b3]">Bio</span>
+            <textarea
+              className="rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef]"
+              rows={4}
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+            />
+          </label>
+
+          <label className="grid gap-1">
+            <span className="text-sm text-[#c9a7b3]">WhatsApp</span>
+            <input
+              className="rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef]"
+              value={whatsapp}
+              onChange={(e) => setWhatsapp(e.target.value)}
+            />
+          </label>
+
+          <label className="grid gap-1">
+            <span className="text-sm text-[#c9a7b3]">Telegram</span>
+            <input
+              className="rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef]"
+              value={telegram}
+              onChange={(e) => setTelegram(e.target.value)}
+            />
+          </label>
+
+          <button
+            onClick={saveProfile}
+            disabled={saving}
+            className="rounded-full bg-gradient-to-r from-[#ff115a] to-[#c400ff] px-4 py-2.5 font-bold text-[#060002] shadow-[0_0_20px_rgba(255,17,90,0.4)] hover:opacity-90 disabled:opacity-50"
           >
-            <option value="">Select a state</option>
-            {NG_TOP_STATES.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
-        </label>
+            {saving ? "Saving..." : "Save changes"}
+          </button>
 
-        <label className="grid gap-1">
-          <span className="text-sm">Area</span>
-          <input
-            className="rounded border p-2"
-            value={area}
-            onChange={(e) => setArea(e.target.value)}
-          />
-        </label>
-
-        <label className="grid gap-1">
-          <span className="text-sm">Bio</span>
-          <textarea
-            className="rounded border p-2"
-            rows={4}
-            value={bio}
-            onChange={(e) => setBio(e.target.value)}
-          />
-        </label>
-
-        <label className="grid gap-1">
-          <span className="text-sm">WhatsApp</span>
-          <input
-            className="rounded border p-2"
-            value={whatsapp}
-            onChange={(e) => setWhatsapp(e.target.value)}
-          />
-        </label>
-
-        <label className="grid gap-1">
-          <span className="text-sm">Telegram</span>
-          <input
-            className="rounded border p-2"
-            value={telegram}
-            onChange={(e) => setTelegram(e.target.value)}
-          />
-        </label>
-
-        <button
-          onClick={saveProfile}
-          disabled={saving}
-          className="rounded-lg border px-4 py-2 disabled:opacity-50"
-        >
-          {saving ? "Saving..." : "Save changes"}
-        </button>
-
-        {msg ? <p className="text-sm">{msg}</p> : null}
+          {msg ? <p className="text-sm text-[#ff5f8f]">{msg}</p> : null}
+        </div>
       </div>
     </main>
   );

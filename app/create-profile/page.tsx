@@ -103,46 +103,52 @@ export default function CreateProfilePage() {
     setPhotoFiles([]);
   }
 
+  const inputClass =
+    "rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef] placeholder:text-[#8f6b78]";
+  const labelClass = "text-sm text-[#c9a7b3]";
+
   if (checkingAuth) {
     return (
-      <main className="min-h-screen bg-white">
+      <main className="min-h-screen bg-[#060002]">
         <Suspense
-          fallback={<div className="h-14 border-b border-black/10 bg-white/80 backdrop-blur" />}
+          fallback={<div className="h-14 border-b border-white/10 bg-[#060002]/90 backdrop-blur" />}
         >
           <SiteHeader />
         </Suspense>
         <div className="mx-auto max-w-3xl px-6 py-8">
-          <p className="text-sm text-gray-600">Checking account...</p>
+          <p className="text-sm text-[#c9a7b3]">Checking account...</p>
         </div>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-[#060002]">
       <Suspense
-        fallback={<div className="h-14 border-b border-black/10 bg-white/80 backdrop-blur" />}
+        fallback={<div className="h-14 border-b border-white/10 bg-[#060002]/90 backdrop-blur" />}
       >
         <SiteHeader />
       </Suspense>
 
       <div className="mx-auto max-w-3xl px-6 py-8">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold">Create Profile</h1>
-          <Link className="underline" href="/">
+          <h1 className="font-[family-name:var(--font-display)] text-3xl uppercase text-[#fbecef]">
+            Create Profile
+          </h1>
+          <Link className="text-sm font-semibold text-[#ff5f8f] hover:text-[#fbecef]" href="/">
             Home
           </Link>
         </div>
 
-        <p className="mt-3 text-gray-600">
+        <p className="mt-3 text-[#c9a7b3]">
           Submit your profile. It will appear on WildModels after approval.
         </p>
 
-        <div className="mt-6 grid gap-3">
+        <div className="mt-6 grid gap-3 rounded-2xl border border-white/10 bg-[#150109] p-5">
           <label className="grid gap-1">
-            <span className="text-sm">Display name</span>
+            <span className={labelClass}>Display name</span>
             <input
-              className="rounded border p-2"
+              className={inputClass}
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
             />
@@ -150,9 +156,9 @@ export default function CreateProfilePage() {
 
           <div className="grid grid-cols-2 gap-3">
             <label className="grid gap-1">
-              <span className="text-sm">Gender</span>
+              <span className={labelClass}>Gender</span>
               <select
-                className="rounded border p-2"
+                className={inputClass}
                 value={gender}
                 onChange={(e) => setGender(e.target.value as "female" | "male" | "nonbinary")}
               >
@@ -163,9 +169,9 @@ export default function CreateProfilePage() {
             </label>
 
             <label className="grid gap-1">
-              <span className="text-sm">Age (18+)</span>
+              <span className={labelClass}>Age (18+)</span>
               <input
-                className="rounded border p-2"
+                className={inputClass}
                 type="number"
                 min={18}
                 max={99}
@@ -177,9 +183,9 @@ export default function CreateProfilePage() {
 
           <div className="grid grid-cols-2 gap-3">
             <label className="grid gap-1">
-              <span className="text-sm">City</span>
+              <span className={labelClass}>City</span>
               <select
-                className="rounded border p-2"
+                className={inputClass}
                 value={city}
                 onChange={(e) => setCity(e.target.value as NgTopState | "")}
               >
@@ -193,9 +199,9 @@ export default function CreateProfilePage() {
             </label>
 
             <label className="grid gap-1">
-              <span className="text-sm">Area</span>
+              <span className={labelClass}>Area</span>
               <input
-                className="rounded border p-2"
+                className={inputClass}
                 value={area}
                 onChange={(e) => setArea(e.target.value)}
               />
@@ -203,9 +209,9 @@ export default function CreateProfilePage() {
           </div>
 
           <label className="grid gap-1">
-            <span className="text-sm">Bio</span>
+            <span className={labelClass}>Bio</span>
             <textarea
-              className="rounded border p-2"
+              className={inputClass}
               rows={4}
               value={bio}
               onChange={(e) => setBio(e.target.value)}
@@ -213,9 +219,9 @@ export default function CreateProfilePage() {
           </label>
 
           <label className="grid gap-1">
-            <span className="text-sm">Main photo (upload)</span>
+            <span className={labelClass}>Main photo (upload)</span>
             <input
-              className="rounded border p-2"
+              className={inputClass}
               type="file"
               accept="image/*"
               multiple
@@ -227,34 +233,34 @@ export default function CreateProfilePage() {
           </label>
 
           <label className="grid gap-1">
-            <span className="text-sm">WhatsApp</span>
+            <span className={labelClass}>WhatsApp</span>
             <input
-              className="rounded border p-2"
+              className={inputClass}
               value={whatsapp}
               onChange={(e) => setWhatsapp(e.target.value)}
             />
           </label>
 
           <label className="grid gap-1">
-            <span className="text-sm">Telegram (username)</span>
+            <span className={labelClass}>Telegram (username)</span>
             <input
-              className="rounded border p-2"
+              className={inputClass}
               value={telegram}
               onChange={(e) => setTelegram(e.target.value)}
             />
           </label>
 
           <button
-            className="rounded border p-2 hover:bg-gray-50 disabled:opacity-50"
+            className="rounded-full bg-gradient-to-r from-[#ff115a] to-[#c400ff] p-2.5 font-bold text-[#060002] shadow-[0_0_20px_rgba(255,17,90,0.4)] hover:opacity-90 disabled:opacity-50"
             disabled={loading}
             onClick={submit}
           >
             {loading ? "Submitting..." : "Submit profile"}
           </button>
 
-          {msg ? <div className="mt-2 text-sm">{msg}</div> : null}
+          {msg ? <div className="mt-2 text-sm text-[#ff5f8f]">{msg}</div> : null}
 
-          <p className="mt-2 text-xs text-gray-500">
+          <p className="mt-2 text-xs text-[#8f6b78]">
             By submitting, you confirm you’re 18+ and consent to your profile being listed publicly
             after approval.
           </p>

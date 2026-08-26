@@ -23,28 +23,31 @@ export default async function AccountSettingsPage() {
     .maybeSingle();
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-10">
-      <a href="/dashboard" className="text-sm text-gray-600 underline">
+    <main className="min-h-screen bg-[#060002]">
+      <div className="mx-auto max-w-2xl px-4 py-10">
+      <a href="/dashboard" className="text-sm font-semibold text-[#ff5f8f] hover:text-[#fbecef]">
         ← Back to dashboard
       </a>
 
-      <h1 className="mt-4 text-2xl font-semibold">Account settings</h1>
+      <h1 className="mt-4 font-[family-name:var(--font-display)] text-3xl uppercase text-[#fbecef]">
+        Account settings
+      </h1>
 
-      <div className="mt-6 rounded-xl border p-5">
-        <h2 className="text-lg font-semibold">Email</h2>
-        <p className="mt-2 text-sm text-gray-600">{user.email}</p>
+      <div className="mt-6 rounded-2xl border border-white/10 bg-[#150109] p-5">
+        <h2 className="text-lg font-bold text-[#fbecef]">Email</h2>
+        <p className="mt-2 text-sm text-[#c9a7b3]">{user.email}</p>
       </div>
 
-      <div className="mt-6 rounded-xl border p-5">
-        <h2 className="text-lg font-semibold">Change password</h2>
+      <div className="mt-6 rounded-2xl border border-white/10 bg-[#150109] p-5">
+        <h2 className="text-lg font-bold text-[#fbecef]">Change password</h2>
         <div className="mt-3">
           <ChangePasswordForm />
         </div>
       </div>
 
-      <div className="mt-6 rounded-xl border p-5">
-        <h2 className="text-lg font-semibold">Session</h2>
-        <p className="mt-2 text-sm text-gray-600">
+      <div className="mt-6 rounded-2xl border border-white/10 bg-[#150109] p-5">
+        <h2 className="text-lg font-bold text-[#fbecef]">Session</h2>
+        <p className="mt-2 text-sm text-[#c9a7b3]">
           Log out of WildModels on this device.
         </p>
         <div className="mt-3">
@@ -53,9 +56,9 @@ export default async function AccountSettingsPage() {
       </div>
 
       {profile ? (
-        <div className="mt-6 rounded-xl border p-5">
-          <h2 className="text-lg font-semibold">Danger zone</h2>
-          <p className="mt-2 text-sm text-gray-600">
+        <div className="mt-6 rounded-2xl border border-red-500/20 bg-[#150109] p-5">
+          <h2 className="text-lg font-bold text-red-300">Danger zone</h2>
+          <p className="mt-2 text-sm text-[#c9a7b3]">
             Deleting your profile hides it immediately. This can&apos;t be
             undone from here.
           </p>
@@ -64,6 +67,7 @@ export default async function AccountSettingsPage() {
           </div>
         </div>
       ) : null}
+      </div>
     </main>
   );
 }

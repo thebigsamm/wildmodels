@@ -243,80 +243,85 @@ export default function ManagePhotosPage() {
 
   if (loading) {
     return (
-      <main className="mx-auto max-w-5xl px-4 py-10">
-        <p>Loading...</p>
+      <main className="min-h-screen bg-[#060002]">
+        <div className="mx-auto max-w-5xl px-4 py-10">
+          <p className="text-[#c9a7b3]">Loading...</p>
+        </div>
       </main>
     );
   }
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-10">
-      <h1 className="text-2xl font-semibold">Manage Photos</h1>
+    <main className="min-h-screen bg-[#060002]">
+      <div className="mx-auto max-w-5xl px-4 py-10">
+      <h1 className="font-[family-name:var(--font-display)] text-3xl uppercase text-[#fbecef]">
+        Manage Photos
+      </h1>
 
-      <div className="mt-6 rounded-xl border p-4">
-        <p className="mb-3 text-sm font-medium">Upload new photos</p>
+      <div className="mt-6 rounded-2xl border border-white/10 bg-[#150109] p-4">
+        <p className="mb-3 text-sm font-bold text-[#ff5f8f]">Upload new photos</p>
 
         <input
           type="file"
           accept="image/*"
           multiple
           onChange={(e) => setNewFiles(Array.from(e.target.files ?? []))}
-          className="block w-full rounded-lg border p-2 text-sm"
+          className="block w-full rounded-lg border border-white/10 bg-[#220413] p-2 text-sm text-[#fbecef]"
         />
 
         <button
           onClick={uploadPhotos}
           disabled={uploading || newFiles.length === 0}
-          className="mt-3 rounded-lg border px-4 py-2 text-sm disabled:opacity-50"
+          className="mt-3 rounded-full bg-gradient-to-r from-[#ff115a] to-[#c400ff] px-4 py-2 text-sm font-bold text-[#060002] shadow-[0_0_18px_rgba(255,17,90,0.4)] hover:opacity-90 disabled:opacity-50 disabled:shadow-none"
         >
           {uploading ? "Uploading..." : "Upload photos"}
         </button>
 
-        <p className="mt-2 text-xs text-gray-500">
+        <p className="mt-2 text-xs text-[#8f6b78]">
           Max 5 photos total. 2MB each. 10MB total per upload.
         </p>
       </div>
 
       {mainUrl ? (
-        <div className="mt-6 rounded-xl border p-4">
-          <p className="mb-3 text-sm font-medium">Current main photo</p>
+        <div className="mt-6 rounded-2xl border border-white/10 bg-[#150109] p-4">
+          <p className="mb-3 text-sm font-bold text-[#ff5f8f]">Current main photo</p>
           <img
             src={mainUrl}
             alt="Main profile photo"
-            className="h-auto w-full max-w-xs rounded-lg border object-cover"
+            className="h-auto w-full max-w-xs rounded-lg border border-white/10 object-cover"
           />
         </div>
       ) : (
-        <div className="mt-6 rounded-xl border p-4">
-          <p className="text-sm text-gray-600">No main photo found.</p>
+        <div className="mt-6 rounded-2xl border border-white/10 bg-[#150109] p-4">
+          <p className="text-sm text-[#c9a7b3]">No main photo found.</p>
         </div>
       )}
 
-      <div className="mt-6 rounded-xl border p-4">
-        <p className="mb-4 text-sm font-medium">All photos</p>
+      <div className="mt-6 rounded-2xl border border-white/10 bg-[#150109] p-4">
+        <p className="mb-4 text-sm font-bold text-[#ff5f8f]">All photos</p>
 
         {displayPhotos.length === 0 ? (
-          <p className="text-sm text-gray-600">No photos found.</p>
+          <p className="text-sm text-[#c9a7b3]">No photos found.</p>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {displayPhotos.map((photo, index) => {
               const isMain = photo.url === mainUrl;
 
               return (
-                <div key={photo.id} className="rounded-xl border p-3">
+                <div key={photo.id} className="rounded-2xl border border-white/10 bg-[#220413] p-3">
                   <img
                     src={photo.url}
                     alt="Profile photo"
-                    className="h-auto w-full rounded-lg border object-cover"
+                    className="h-auto w-full rounded-lg border border-white/10 object-cover"
                   />
 
                   <div className="mt-3 space-y-1">
-                    <p className="text-sm font-medium">
+                    <p className="text-sm font-bold text-[#fbecef]">
                       {isMain ? "Main photo" : `Photo ${index + 1}`}
                     </p>
 
                     {photo.synthetic ? (
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-[#8f6b78]">
                         This photo is your current main photo but is not in the photo list table.
                       </p>
                     ) : null}
@@ -327,7 +332,7 @@ export default function ManagePhotosPage() {
                       <button
                         onClick={() => setMain(photo.url)}
                         disabled={working}
-                        className="rounded-lg border px-3 py-2 text-sm disabled:opacity-50"
+                        className="rounded-full border border-white/20 px-3 py-2 text-sm font-semibold text-[#fbecef] hover:bg-white/5 disabled:opacity-50"
                       >
                         Set as main
                       </button>
@@ -341,7 +346,7 @@ export default function ManagePhotosPage() {
                             working ||
                             photos.findIndex((p) => p.id === photo.id) === 0
                           }
-                          className="rounded-lg border px-3 py-2 text-sm disabled:opacity-50"
+                          className="rounded-full border border-white/20 px-3 py-2 text-sm font-semibold text-[#fbecef] hover:bg-white/5 disabled:opacity-50"
                         >
                           Move up
                         </button>
@@ -352,7 +357,7 @@ export default function ManagePhotosPage() {
                             photos.findIndex((p) => p.id === photo.id) ===
                               photos.length - 1
                           }
-                          className="rounded-lg border px-3 py-2 text-sm disabled:opacity-50"
+                          className="rounded-full border border-white/20 px-3 py-2 text-sm font-semibold text-[#fbecef] hover:bg-white/5 disabled:opacity-50"
                         >
                           Move down
                         </button>
@@ -362,7 +367,7 @@ export default function ManagePhotosPage() {
                     <button
                       onClick={() => deletePhoto(photo.id, photo.url, photo.synthetic)}
                       disabled={working || displayPhotos.length <= 1}
-                      className="rounded-lg border px-3 py-2 text-sm disabled:opacity-50"
+                      className="rounded-full border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm font-semibold text-red-300 hover:bg-red-500/20 disabled:opacity-50"
                     >
                       Delete
                     </button>
@@ -374,7 +379,8 @@ export default function ManagePhotosPage() {
         )}
       </div>
 
-      {msg ? <p className="mt-4 text-sm">{msg}</p> : null}
+      {msg ? <p className="mt-4 text-sm text-[#ff5f8f]">{msg}</p> : null}
+      </div>
     </main>
   );
 }
