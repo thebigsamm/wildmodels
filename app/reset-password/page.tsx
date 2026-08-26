@@ -42,38 +42,42 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <main className="mx-auto max-w-md px-4 py-10">
-      <h1 className="mb-6 text-2xl font-semibold">Set a new password</h1>
+    <main className="min-h-screen bg-[#060002]">
+      <div className="mx-auto max-w-md px-4 py-16">
+        <h1 className="mb-6 font-[family-name:var(--font-display)] text-3xl uppercase text-[#fbecef]">
+          Set a new password
+        </h1>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="password"
-          placeholder="New password"
-          className="w-full rounded-lg border px-4 py-3"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            type="password"
+            placeholder="New password"
+            className="w-full rounded-lg border border-white/10 bg-[#220413] px-4 py-3 text-[#fbecef] placeholder:text-[#8f6b78]"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
 
-        <input
-          type="password"
-          placeholder="Confirm new password"
-          className="w-full rounded-lg border px-4 py-3"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          required
-        />
+          <input
+            type="password"
+            placeholder="Confirm new password"
+            className="w-full rounded-lg border border-white/10 bg-[#220413] px-4 py-3 text-[#fbecef] placeholder:text-[#8f6b78]"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+          />
 
-        <button
-          type="submit"
-          disabled={saving}
-          className="w-full rounded-lg bg-black px-4 py-3 text-white disabled:opacity-50"
-        >
-          {saving ? "Saving..." : "Update password"}
-        </button>
-      </form>
+          <button
+            type="submit"
+            disabled={saving}
+            className="w-full rounded-full bg-gradient-to-r from-[#ff115a] to-[#c400ff] px-4 py-3 font-bold text-[#060002] shadow-[0_0_26px_rgba(255,17,90,0.4)] hover:opacity-90 disabled:opacity-50"
+          >
+            {saving ? "Saving..." : "Update password"}
+          </button>
+        </form>
 
-      {message ? <p className="mt-4 text-sm">{message}</p> : null}
+        {message ? <p className="mt-4 text-sm text-[#ff5f8f]">{message}</p> : null}
+      </div>
     </main>
   );
 }
