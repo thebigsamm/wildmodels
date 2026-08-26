@@ -9,7 +9,7 @@ const redis = new Redis({
 // Profile submission limiter (stricter)
 export const createProfileRatelimit = new Ratelimit({
   redis,
-  limiter: Ratelimit.slidingWindow(3, "1 h"),
+  limiter: Ratelimit.slidingWindow(4, "1 h"),
 });
 
 // Report limiter (can be same or different)
