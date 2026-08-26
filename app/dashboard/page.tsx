@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import LogoutButton from "@/components/logoutbutton";
+import DeleteProfileButton from "@/components/deleteprofilebutton";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -17,6 +18,7 @@ export default async function DashboardPage() {
     .from("profiles")
     .select("id, display_name, city, area, status, is_active")
     .eq("user_id", user.id)
+    .is("deleted_at", null)
     .maybeSingle();
 
   return (
@@ -77,6 +79,10 @@ export default async function DashboardPage() {
             >
               Manage photos
             </a>
+          </div>
+
+          <div className="mt-6">
+            <DeleteProfileButton />
           </div>
         </div>
       )}

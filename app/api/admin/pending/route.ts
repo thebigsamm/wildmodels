@@ -18,6 +18,7 @@ export async function POST(req: NextRequest) {
       .from("profiles")
       .select("id, display_name, gender, age, city, area, status, created_at")
       .eq("status", "pending")
+      .is("deleted_at", null)
       .order("created_at", { ascending: false });
 
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });

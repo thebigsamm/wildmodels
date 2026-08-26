@@ -48,6 +48,7 @@ export default function EditProfilePage() {
         .from("profiles")
         .select("id, display_name, age, city, area, bio, whatsapp, telegram")
         .eq("user_id", user.id)
+        .is("deleted_at", null)
         .maybeSingle();
 
       if (!profile) {

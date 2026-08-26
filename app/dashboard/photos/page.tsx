@@ -68,6 +68,7 @@ export default function ManagePhotosPage() {
         .from("profiles")
         .select("id, photo_url")
         .eq("user_id", user.id)
+        .is("deleted_at", null)
         .maybeSingle();
 
       if (profileError || !profile) {

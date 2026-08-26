@@ -55,6 +55,7 @@ export default function ProfilePage() {
         .eq("id", id)
         .eq("status", "approved")
         .eq("is_active", true)
+        .is("deleted_at", null)
         .single();
 
       if (error || !data) {

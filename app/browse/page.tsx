@@ -163,6 +163,7 @@ export default function Page() {
         .select("id, display_name, gender, age, city, area, bio, photo_url")
         .eq("status", "approved")
         .eq("is_active", true)
+        .is("deleted_at", null)
         .order("created_at", { ascending: false });
 
       if (error) {

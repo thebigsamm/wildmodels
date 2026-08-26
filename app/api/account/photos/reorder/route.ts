@@ -30,6 +30,7 @@ export async function POST(req: NextRequest) {
       .from("profiles")
       .select("id")
       .eq("user_id", user.id)
+      .is("deleted_at", null)
       .maybeSingle();
 
     if (profileError || !profile) {
