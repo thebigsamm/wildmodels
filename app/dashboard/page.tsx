@@ -47,9 +47,9 @@ export default async function DashboardPage() {
         <p className="mt-2 text-sm text-[#c9a7b3]">Logged in as: {user.email}</p>
 
         {!profile ? (
-          <div className="mt-8 rounded-2xl border border-white/10 bg-[#150109] p-5">
+          <div className="mt-8 rounded-2xl border border-white/10 bg-[#150109] p-7">
             <h2 className="text-lg font-bold text-[#fbecef]">No profile yet</h2>
-            <p className="mt-2 text-sm text-[#c9a7b3]">
+            <p className="mt-3 text-base font-medium text-[#c9a7b3]">
               You haven’t created a profile yet, but you can still{" "}
               <a href="/browse" className="text-[#ff5f8f] underline hover:text-[#fbecef]">
                 browse
@@ -58,7 +58,7 @@ export default async function DashboardPage() {
             </p>
             <a
               href="/create-profile"
-              className="mt-4 inline-block rounded-full bg-gradient-to-r from-[#ff115a] to-[#c400ff] px-5 py-2.5 font-bold text-[#060002] shadow-[0_0_20px_rgba(255,17,90,0.4)] hover:opacity-90"
+              className="mt-6 inline-block rounded-full bg-gradient-to-r from-[#ff115a] to-[#c400ff] px-5 py-2.5 font-bold text-[#060002] shadow-[0_0_20px_rgba(255,17,90,0.4)] hover:opacity-90"
             >
               Create profile
             </a>
