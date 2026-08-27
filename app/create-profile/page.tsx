@@ -38,15 +38,12 @@ export default function CreateProfilePage() {
         return;
       }
 
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("user_id", user.id)
-        .is("deleted_at", null)
-        .maybeSingle();
-
-      if (profile) {
-        setHasProfile(true);
+      const res = await fetch("/api/account/profile");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.profile) {
+          setHasProfile(true);
+        }
       }
 
       setCheckingAuth(false);

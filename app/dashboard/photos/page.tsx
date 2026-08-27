@@ -65,19 +65,15 @@ export default function ManagePhotosPage() {
         return;
       }
 
-      const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("id, photo_url")
-        .eq("user_id", user.id)
-        .is("deleted_at", null)
-        .maybeSingle();
+      const res = await fetch("/api/account/profile");
+      const data = res.ok ? await res.json() : { profile: null };
 
-      if (profileError || !profile) {
+      if (!data.profile) {
         router.replace("/dashboard");
         return;
       }
 
-      const p = profile as ProfileRow;
+      const p = data.profile as ProfileRow;
       setProfileId(p.id);
       setMainUrl(p.photo_url);
 

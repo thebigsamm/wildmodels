@@ -45,19 +45,15 @@ export default function EditProfilePage() {
         return;
       }
 
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("id, display_name, age, city, area, bio, whatsapp, telegram")
-        .eq("user_id", user.id)
-        .is("deleted_at", null)
-        .maybeSingle();
+      const res = await fetch("/api/account/profile");
+      const data = res.ok ? await res.json() : { profile: null };
 
-      if (!profile) {
+      if (!data.profile) {
         router.replace("/dashboard");
         return;
       }
 
-      const p = profile as Profile;
+      const p = data.profile as Profile;
       setProfileId(p.id);
       setDisplayName(p.display_name || "");
       setAge(p.age || 18);
