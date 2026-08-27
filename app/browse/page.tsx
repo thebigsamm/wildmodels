@@ -144,6 +144,7 @@ export default function Page() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [hasProfile, setHasProfile] = useState(false);
 
   // Filters
   const [ai, setAi] = useState("");
@@ -176,6 +177,22 @@ export default function Page() {
       }
 
       setLoading(false);
+    })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) return;
+
+      const res = await fetch("/api/account/profile");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.profile) setHasProfile(true);
+      }
     })();
   }, []);
 
@@ -243,7 +260,9 @@ export default function Page() {
           Browse
         </h1>
         <div className="flex gap-4 text-sm font-semibold">
-          <Link className="text-[#ff5f8f] hover:text-[#fbecef]" href="/create-profile">Create Profile</Link>
+          {!hasProfile ? (
+            <Link className="text-[#ff5f8f] hover:text-[#fbecef]" href="/create-profile">Create Profile</Link>
+          ) : null}
           <Link className="text-[#c9a7b3] hover:text-[#fbecef]" href="/">Home</Link>
         </div>
       </div>
