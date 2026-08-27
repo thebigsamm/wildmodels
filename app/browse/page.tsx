@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/client";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Suspense } from "react";
 import { NG_TOP_STATES } from "@/lib/ngStates";
@@ -182,9 +183,10 @@ export default function Page() {
 
   useEffect(() => {
     (async () => {
+      const authClient = createClient();
       const {
         data: { user },
-      } = await supabase.auth.getUser();
+      } = await authClient.auth.getUser();
 
       if (!user) return;
 
