@@ -50,7 +50,11 @@ export default async function DashboardPage() {
           <div className="mt-8 rounded-2xl border border-white/10 bg-[#150109] p-5">
             <h2 className="text-lg font-bold text-[#fbecef]">No profile yet</h2>
             <p className="mt-2 text-sm text-[#c9a7b3]">
-              You haven’t created a profile yet.
+              You haven’t created a profile yet, but you can still{" "}
+              <a href="/browse" className="text-[#ff5f8f] underline hover:text-[#fbecef]">
+                browse
+              </a>{" "}
+              and find people you like.
             </p>
             <a
               href="/create-profile"

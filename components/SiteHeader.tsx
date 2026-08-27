@@ -30,11 +30,8 @@ export function SiteHeader({ rightSlot }: { rightSlot?: React.ReactNode }) {
           <Button href="/browse" variant="subtle">
             Browse
           </Button>
-          <Button href="/create-profile" variant="subtle">
-            Create
-          </Button>
-          
-          <HeaderAuthNav /> 
+
+          <HeaderAuthNav />
 
           {rightSlot ? (
             rightSlot
