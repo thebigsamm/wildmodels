@@ -27,10 +27,6 @@ export function SiteHeader({ rightSlot }: { rightSlot?: React.ReactNode }) {
         </Link>
 
         <nav className="flex items-center gap-2">
-          <Button href="/browse" variant="subtle">
-            Browse
-          </Button>
-
           <HeaderAuthNav />
 
           {rightSlot ? (

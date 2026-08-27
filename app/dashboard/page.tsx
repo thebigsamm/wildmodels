@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getProfileStatusInfo } from "@/lib/profileStatus";
 import { SiteHeader } from "@/components/SiteHeader";
 import ToggleProfileVisibilityButton from "@/components/toggleprofilevisibilitybutton";
+import { BackButton } from "@/components/BackButton";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -33,7 +34,8 @@ export default async function DashboardPage() {
         <SiteHeader />
       </Suspense>
       <div className="mx-auto max-w-2xl px-4 py-10">
-        <div className="flex items-center justify-between gap-3">
+        <BackButton />
+        <div className="mt-4 flex items-center justify-between gap-3">
           <h1 className="font-[family-name:var(--font-display)] text-3xl uppercase text-[#fbecef]">
             Dashboard
           </h1>
