@@ -1,8 +1,34 @@
 import { Button } from "@/components/Button";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Suspense } from "react";
+import { createClient as createServerClient } from "@/lib/supabase/server";
+import { createClient as createAdminClient } from "@supabase/supabase-js";
 
-export default function Home() {
+const supabaseAdmin = createAdminClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+export default async function Home() {
+  const supabase = await createServerClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  let hasProfile = false;
+
+  if (user) {
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("id")
+      .eq("user_id", user.id)
+      .is("deleted_at", null)
+      .maybeSingle();
+
+    hasProfile = !!profile;
+  }
+
   return (
     <main className="min-h-screen bg-[#060002] relative overflow-hidden">
       <div className="pointer-events-none absolute -top-64 -right-44 h-[680px] w-[680px] rounded-full bg-[radial-gradient(circle,rgba(255,17,90,0.28),transparent_68%)]" />
@@ -30,9 +56,11 @@ export default function Home() {
             <Button href="/browse" variant="primary">
               Browse Profiles
             </Button>
-            <Button href="/create-profile" variant="outline">
-              Create Profile
-            </Button>
+            {!hasProfile ? (
+              <Button href="/create-profile" variant="outline">
+                Create Profile
+              </Button>
+            ) : null}
           </div>
 
           <p className="gradient-text-slide mt-8 text-lg font-bold">
