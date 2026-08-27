@@ -261,11 +261,21 @@ export default function Page() {
         <h1 className="font-[family-name:var(--font-display)] text-3xl uppercase tracking-wide text-[#fbecef]">
           Browse
         </h1>
-        <div className="flex gap-4 text-sm font-semibold">
+        <div className="flex items-center gap-3">
           {!hasProfile ? (
-            <Link className="text-[#ff5f8f] hover:text-[#fbecef]" href="/create-profile">Create Profile</Link>
+            <Link
+              href="/create-profile"
+              className="rounded-full border border-[#ff115a]/40 px-4 py-2 text-sm font-bold text-[#ff5f8f] hover:bg-[#ff115a]/10"
+            >
+              Create Profile
+            </Link>
           ) : null}
-          <Link className="text-[#c9a7b3] hover:text-[#fbecef]" href="/">Home</Link>
+          <Link
+            href="/"
+            className="rounded-full border border-white/20 px-4 py-2 text-sm font-bold text-[#fbecef] hover:bg-white/5"
+          >
+            Home
+          </Link>
         </div>
       </div>
 
