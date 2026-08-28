@@ -1,15 +1,9 @@
 import { ImageResponse } from "next/og";
-import { readFile } from "fs/promises";
-import { join } from "path";
 
 export const size = { width: 180, height: 180 };
 export const contentType = "image/png";
 
 export default async function AppleIcon() {
-  const antonData = await readFile(
-    join(process.cwd(), "assets/fonts/Anton-Regular.ttf")
-  );
-
   return new ImageResponse(
     (
       <div
@@ -25,10 +19,8 @@ export default async function AppleIcon() {
         <div
           style={{
             display: "flex",
-            fontSize: 145,
-            fontFamily: "Anton",
-            transform: "scaleX(1.4)",
-            transformOrigin: "center",
+            fontSize: 118,
+            fontWeight: 900,
             backgroundImage: "linear-gradient(135deg, #ff115a, #c400ff)",
             backgroundClip: "text",
             color: "transparent",
@@ -38,9 +30,6 @@ export default async function AppleIcon() {
         </div>
       </div>
     ),
-    {
-      ...size,
-      fonts: [{ name: "Anton", data: antonData, style: "normal", weight: 400 }],
-    }
+    size
   );
 }
