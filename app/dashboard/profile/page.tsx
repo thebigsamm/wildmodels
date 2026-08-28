@@ -9,7 +9,6 @@ import { SiteHeader } from "@/components/SiteHeader";
 type Profile = {
   id: string;
   display_name: string;
-  gender: "female" | "male";
   orientation: "straight" | "gay" | "bisexual";
   age: number;
   city: string;
@@ -29,7 +28,6 @@ export default function EditProfilePage() {
   const [profileId, setProfileId] = useState<string | null>(null);
 
   const [displayName, setDisplayName] = useState("");
-  const [gender, setGender] = useState<"female" | "male">("female");
   const [orientation, setOrientation] = useState<"straight" | "gay" | "bisexual">("straight");
   const [age, setAge] = useState(18);
   const [city, setCity] = useState<NgTopState | "">("");
@@ -60,7 +58,6 @@ export default function EditProfilePage() {
       const p = data.profile as Profile;
       setProfileId(p.id);
       setDisplayName(p.display_name || "");
-      setGender(p.gender || "female");
       setOrientation(p.orientation || "straight");
       setAge(p.age || 18);
       setCity((p.city as NgTopState) || "");
@@ -90,7 +87,6 @@ export default function EditProfilePage() {
       .from("profiles")
       .update({
         display_name: displayName.trim(),
-        gender,
         orientation,
         age,
         city,
@@ -148,34 +144,20 @@ export default function EditProfilePage() {
             />
           </label>
 
-          <div className="grid grid-cols-2 gap-3">
-            <label className="grid gap-1">
-              <span className="text-sm text-[#c9a7b3]">Gender</span>
-              <select
-                className="rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef]"
-                value={gender}
-                onChange={(e) => setGender(e.target.value as "female" | "male")}
-              >
-                <option value="female">Female</option>
-                <option value="male">Male</option>
-              </select>
-            </label>
-
-            <label className="grid gap-1">
-              <span className="text-sm text-[#c9a7b3]">Preference</span>
-              <select
-                className="rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef]"
-                value={orientation}
-                onChange={(e) =>
-                  setOrientation(e.target.value as "straight" | "gay" | "bisexual")
-                }
-              >
-                <option value="straight">Straight</option>
-                <option value="gay">Gay</option>
-                <option value="bisexual">Bisexual</option>
-              </select>
-            </label>
-          </div>
+          <label className="grid gap-1">
+            <span className="text-sm text-[#c9a7b3]">Preference</span>
+            <select
+              className="rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef]"
+              value={orientation}
+              onChange={(e) =>
+                setOrientation(e.target.value as "straight" | "gay" | "bisexual")
+              }
+            >
+              <option value="straight">Straight</option>
+              <option value="gay">Gay</option>
+              <option value="bisexual">Bisexual</option>
+            </select>
+          </label>
 
           <label className="grid gap-1">
             <span className="text-sm text-[#c9a7b3]">Age</span>
