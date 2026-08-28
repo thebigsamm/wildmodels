@@ -22,7 +22,9 @@ export async function GET() {
 
     const { data: profile, error } = await supabaseAdmin
       .from("profiles")
-      .select("id, photo_url, display_name, age, city, area, bio, whatsapp, telegram")
+      .select(
+        "id, photo_url, display_name, gender, orientation, age, city, area, bio, whatsapp, telegram"
+      )
       .eq("user_id", user.id)
       .is("deleted_at", null)
       .maybeSingle();
