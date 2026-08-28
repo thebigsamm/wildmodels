@@ -291,7 +291,7 @@ export default function Page() {
 
       <div className="mt-5 grid gap-3 lg:grid-cols-3">
         <div className="rounded-2xl border border-[#ff115a]/25 bg-[#150109] p-4 lg:col-span-3">
-          <div className="text-sm font-bold text-[#ff5f8f]">AI Search (v1)</div>
+          <div className="text-sm font-bold text-[#ff5f8f]">Use our AI search</div>
           <div className="mt-2 flex gap-2 flex-wrap">
             <input
               className="min-w-[240px] flex-1 rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef] placeholder:text-[#8f6b78]"
@@ -314,9 +314,6 @@ export default function Page() {
             >
               Clear
             </button>
-          </div>
-          <div className="mt-2 text-xs text-[#8f6b78]">
-            This converts text into filters. Real ranking/AI comes later.
           </div>
         </div>
 
