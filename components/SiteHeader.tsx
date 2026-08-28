@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Button } from "./Button";
 import HeaderAuthNav from "@/components/HeaderAuthNav";
+import { SideDrawer } from "@/components/SideDrawer";
 
 export function SiteHeader({ rightSlot }: { rightSlot?: React.ReactNode }) {
   const pathname = usePathname();
@@ -19,12 +20,15 @@ export function SiteHeader({ rightSlot }: { rightSlot?: React.ReactNode }) {
   return (
     <header className="sticky top-0 z-20 border-b border-white/10 bg-[#060002]/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-        <Link
-          href="/"
-          className="bg-gradient-to-r from-[#ff115a] to-[#c400ff] bg-clip-text font-[family-name:var(--font-display)] text-2xl tracking-wide text-transparent"
-        >
-          WILDMODELS
-        </Link>
+        <div className="flex items-center gap-3">
+          <SideDrawer />
+          <Link
+            href="/"
+            className="bg-gradient-to-r from-[#ff115a] to-[#c400ff] bg-clip-text font-[family-name:var(--font-display)] text-2xl tracking-wide text-transparent"
+          >
+            WILDMODELS
+          </Link>
+        </div>
 
         <nav className="flex items-center gap-2">
           <HeaderAuthNav />
