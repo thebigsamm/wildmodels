@@ -325,7 +325,7 @@ export default function Page() {
           value={gender}
           onChange={(e) => setGender(e.target.value as any)}
         >
-          <option value="all">All genders</option>
+          <option value="all">Gender</option>
           <option value="female">Female</option>
           <option value="male">Male</option>
         </select>
@@ -335,7 +335,7 @@ export default function Page() {
           value={orientation}
           onChange={(e) => setOrientation(e.target.value as any)}
         >
-          <option value="all">All preferences</option>
+          <option value="all">Preference</option>
           <option value="straight">Straight</option>
           <option value="gay">Gay</option>
           <option value="bisexual">Bisexual</option>
@@ -348,7 +348,7 @@ export default function Page() {
         >
           {cityOptions.map((c) => (
             <option key={c} value={c}>
-              {c === "all" ? "All states" : c}
+              {c === "all" ? "State" : c}
             </option>
           ))}
         </select>
