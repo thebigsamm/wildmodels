@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -12,8 +13,13 @@ export function SideDrawer() {
   const supabase = createClient();
 
   const [open, setOpen] = useState(false);
+  const [portalReady, setPortalReady] = useState(false);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<UserState | null>(null);
+
+  useEffect(() => {
+    setPortalReady(true);
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -74,61 +80,64 @@ export function SideDrawer() {
         </svg>
       </button>
 
-      {open ? (
-        <div className="fixed inset-0 z-50">
-          <div className="absolute inset-0 bg-black/70" onClick={() => setOpen(false)} />
+      {open && portalReady
+        ? createPortal(
+            <div className="fixed inset-0 z-50">
+              <div className="absolute inset-0 bg-black/70" onClick={() => setOpen(false)} />
 
-          <div className="absolute inset-y-0 left-0 w-72 max-w-[85vw] overflow-y-auto border-r border-white/10 bg-[#0d0106] p-4">
-            <div className="flex items-center justify-between">
-              <div className="bg-gradient-to-r from-[#ff115a] to-[#c400ff] bg-clip-text font-[family-name:var(--font-display)] text-xl tracking-wide text-transparent">
-                WILDMODELS
+              <div className="absolute inset-y-0 left-0 w-72 max-w-[85vw] overflow-y-auto border-r border-white/10 bg-[#0d0106] p-4">
+                <div className="flex items-center justify-between">
+                  <div className="bg-gradient-to-r from-[#ff115a] to-[#c400ff] bg-clip-text font-[family-name:var(--font-display)] text-xl tracking-wide text-transparent">
+                    WILDMODELS
+                  </div>
+                  <button
+                    aria-label="Close menu"
+                    onClick={() => setOpen(false)}
+                    className="rounded-full border border-white/20 px-3 py-1.5 text-sm text-[#fbecef] hover:bg-white/5"
+                  >
+                    Close ✕
+                  </button>
+                </div>
+
+                <div className={sectionLabelClass}>Account</div>
+                {!loading && user ? (
+                  <>
+                    <Link href="/dashboard" className={linkClass} onClick={() => setOpen(false)}>
+                      Dashboard
+                    </Link>
+                    <button onClick={handleLogout} className={`${linkClass} w-full text-left`}>
+                      Log out
+                    </button>
+                  </>
+                ) : null}
+                {!loading && !user ? (
+                  <>
+                    <Link href="/login" className={linkClass} onClick={() => setOpen(false)}>
+                      Login
+                    </Link>
+                    <Link href="/register" className={linkClass} onClick={() => setOpen(false)}>
+                      Join free
+                    </Link>
+                  </>
+                ) : null}
+
+                <div className={sectionLabelClass}>Support</div>
+                <Link href="/support" className={linkClass} onClick={() => setOpen(false)}>
+                  Contact / Support
+                </Link>
+                <Link href="/reviews" className={linkClass} onClick={() => setOpen(false)}>
+                  Reviews
+                </Link>
+
+                <div className={sectionLabelClass}>Legal</div>
+                <Link href="/legal" className={linkClass} onClick={() => setOpen(false)}>
+                  Legal &amp; Safety
+                </Link>
               </div>
-              <button
-                aria-label="Close menu"
-                onClick={() => setOpen(false)}
-                className="rounded-full border border-white/20 px-3 py-1.5 text-sm text-[#fbecef] hover:bg-white/5"
-              >
-                Close ✕
-              </button>
-            </div>
-
-            <div className={sectionLabelClass}>Account</div>
-            {!loading && user ? (
-              <>
-                <Link href="/dashboard" className={linkClass} onClick={() => setOpen(false)}>
-                  Dashboard
-                </Link>
-                <button onClick={handleLogout} className={`${linkClass} w-full text-left`}>
-                  Log out
-                </button>
-              </>
-            ) : null}
-            {!loading && !user ? (
-              <>
-                <Link href="/login" className={linkClass} onClick={() => setOpen(false)}>
-                  Login
-                </Link>
-                <Link href="/register" className={linkClass} onClick={() => setOpen(false)}>
-                  Join free
-                </Link>
-              </>
-            ) : null}
-
-            <div className={sectionLabelClass}>Support</div>
-            <Link href="/support" className={linkClass} onClick={() => setOpen(false)}>
-              Contact / Support
-            </Link>
-            <Link href="/reviews" className={linkClass} onClick={() => setOpen(false)}>
-              Reviews
-            </Link>
-
-            <div className={sectionLabelClass}>Legal</div>
-            <Link href="/legal" className={linkClass} onClick={() => setOpen(false)}>
-              Legal &amp; Safety
-            </Link>
-          </div>
-        </div>
-      ) : null}
+            </div>,
+            document.body
+          )
+        : null}
     </>
   );
 }
