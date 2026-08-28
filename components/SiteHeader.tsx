@@ -21,7 +21,7 @@ export function SiteHeader({ rightSlot }: { rightSlot?: React.ReactNode }) {
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
         <Link
           href="/"
-          className="bg-gradient-to-r from-[#ff115a] to-[#c400ff] bg-clip-text font-[family-name:var(--font-display)] text-xl tracking-wide text-transparent"
+          className="bg-gradient-to-r from-[#ff115a] to-[#c400ff] bg-clip-text font-[family-name:var(--font-display)] text-2xl tracking-wide text-transparent"
         >
           WILDMODELS
         </Link>
