@@ -395,7 +395,7 @@ export default function Page() {
       ) : null}
 
       {!loading && !errorMsg ? (
-        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-8 grid gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {filtered.map((p, i) => (
             <Link
               key={p.id}
@@ -414,32 +414,32 @@ export default function Page() {
                   <div
                     className={`grid h-full w-full place-items-center bg-gradient-to-br ${gradients[i % gradients.length]}`}
                   >
-                    <span className="font-[family-name:var(--font-display)] text-6xl text-black/30">
+                    <span className="font-[family-name:var(--font-display)] text-4xl text-black/30">
                       {p.display_name?.[0]?.toUpperCase() ?? "?"}
                     </span>
                   </div>
                 )}
               </div>
 
-              <div className="p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="font-extrabold text-[#fbecef]">
+              <div className="p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="text-sm font-extrabold text-[#fbecef]">
                     {p.display_name}
                   </div>
-                  <div className="text-sm text-[#c9a7b3]">{p.age}</div>
+                  <div className="text-xs text-[#c9a7b3]">{p.age}</div>
                 </div>
 
-                <div className="mt-1 text-sm font-semibold text-[#ff5f8f]">
+                <div className="mt-1 text-xs font-semibold text-[#ff5f8f]">
                   {p.city}, {p.area}
                 </div>
 
                 {p.bio ? (
-                  <div className="mt-3 line-clamp-2 text-sm text-[#a3808c]">
+                  <div className="mt-2 line-clamp-2 text-xs text-[#a3808c]">
                     {p.bio}
                   </div>
                 ) : null}
 
-                <div className="mt-4 text-xs font-semibold text-[#8f6b78]">
+                <div className="mt-3 text-xs font-semibold text-[#8f6b78]">
                   View profile →
                 </div>
               </div>
