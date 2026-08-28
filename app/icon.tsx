@@ -1,9 +1,15 @@
 import { ImageResponse } from "next/og";
+import { readFile } from "fs/promises";
+import { join } from "path";
 
 export const size = { width: 32, height: 32 };
 export const contentType = "image/png";
 
-export default function Icon() {
+export default async function Icon() {
+  const antonData = await readFile(
+    join(process.cwd(), "assets/fonts/Anton-Regular.ttf")
+  );
+
   return new ImageResponse(
     (
       <div
@@ -20,9 +26,10 @@ export default function Icon() {
         <div
           style={{
             display: "flex",
-            fontSize: 22,
-            fontWeight: 900,
-            fontFamily: "Arial, Helvetica, sans-serif",
+            fontSize: 26,
+            fontFamily: "Anton",
+            transform: "scaleX(1.4)",
+            transformOrigin: "center",
             backgroundImage: "linear-gradient(135deg, #ff115a, #c400ff)",
             backgroundClip: "text",
             color: "transparent",
@@ -32,6 +39,9 @@ export default function Icon() {
         </div>
       </div>
     ),
-    { ...size }
+    {
+      ...size,
+      fonts: [{ name: "Anton", data: antonData, style: "normal", weight: 400 }],
+    }
   );
 }
