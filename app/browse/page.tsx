@@ -12,7 +12,8 @@ type Profile = {
   id: string;
   username: string;
   display_name: string;
-  gender: "female" | "male" | "nonbinary";
+  gender: "female" | "male";
+  orientation: "straight" | "gay" | "bisexual";
   age: number;
   city: string;
   area: string;
@@ -97,7 +98,8 @@ function normalizeArea(raw: string) {
 function parseAiQuery(input: string) {
   const text = input.toLowerCase().trim();
 
-  let gender: "female" | "male" | "nonbinary" | null = null;
+  let gender: "female" | "male" | null = null;
+  let orientation: "straight" | "gay" | "bisexual" | null = null;
   let city: string | null = null;
   let area: string | null = null;
   let minAge: number | null = null;
@@ -106,7 +108,11 @@ function parseAiQuery(input: string) {
   // gender
   if (/\b(female|woman|women|girl|girls|lady|ladies)\b/.test(text)) gender = "female";
   if (/\b(male|man|men|guy|guys|boy|boys)\b/.test(text)) gender = "male";
-  if (/\b(nonbinary|non-binary|nb)\b/.test(text)) gender = "nonbinary";
+
+  // orientation
+  if (/\b(straight)\b/.test(text)) orientation = "straight";
+  if (/\b(gay)\b/.test(text)) orientation = "gay";
+  if (/\b(bisexual|bi)\b/.test(text)) orientation = "bisexual";
 
   // age range e.g. "18-25"
   const range = text.match(/(\d{2})\s*-\s*(\d{2})/);
@@ -138,7 +144,7 @@ function parseAiQuery(input: string) {
     }
   }
 
-  return { gender, city, area, minAge, maxAge };
+  return { gender, orientation, city, area, minAge, maxAge };
 }
 
 export default function Page() {
@@ -150,6 +156,7 @@ export default function Page() {
   // Filters
   const [ai, setAi] = useState("");
   const [gender, setGender] = useState<"all" | Profile["gender"]>("all");
+  const [orientation, setOrientation] = useState<"all" | Profile["orientation"]>("all");
   const [city, setCity] = useState<string>("all");
   const [area, setArea] = useState("");
   const [minAge, setMinAge] = useState<number | "">("");
@@ -163,7 +170,7 @@ export default function Page() {
       // Since RLS only shows approved+active, guests will only see live profiles
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, username, display_name, gender, age, city, area, bio, photo_url")
+        .select("id, username, display_name, gender, orientation, age, city, area, bio, photo_url")
         .eq("status", "approved")
         .eq("is_active", true)
         .eq("is_hidden_by_owner", false)
@@ -207,6 +214,7 @@ export default function Page() {
 
     return profiles.filter((p) => {
       if (gender !== "all" && p.gender !== gender) return false;
+      if (orientation !== "all" && p.orientation !== orientation) return false;
       if (city !== "all" && p.city !== city) return false;
 
       if (area.trim()) {
@@ -218,12 +226,13 @@ export default function Page() {
 
       return true;
     });
-  }, [profiles, gender, city, area, minAge, maxAge]);
+  }, [profiles, gender, orientation, city, area, minAge, maxAge]);
 
   function applyAi() {
     const parsed = parseAiQuery(ai);
 
     if (parsed.gender) setGender(parsed.gender);
+    if (parsed.orientation) setOrientation(parsed.orientation);
     if (parsed.city) setCity(parsed.city);
     if (parsed.area) setArea(parsed.area);
     if (parsed.minAge !== null) setMinAge(parsed.minAge);
@@ -233,6 +242,7 @@ export default function Page() {
   function clearFilters() {
     setAi("");
     setGender("all");
+    setOrientation("all");
     setCity("all");
     setArea("");
     setMinAge("");
@@ -318,6 +328,17 @@ export default function Page() {
           <option value="all">All genders</option>
           <option value="female">Female</option>
           <option value="male">Male</option>
+        </select>
+
+        <select
+          className="rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef]"
+          value={orientation}
+          onChange={(e) => setOrientation(e.target.value as any)}
+        >
+          <option value="all">All preferences</option>
+          <option value="straight">Straight</option>
+          <option value="gay">Gay</option>
+          <option value="bisexual">Bisexual</option>
         </select>
 
         <select

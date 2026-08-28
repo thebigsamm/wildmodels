@@ -11,7 +11,8 @@ import { Suspense } from "react";
 type Profile = {
   id: string;
   display_name: string;
-  gender: "female" | "male" | "nonbinary";
+  gender: "female" | "male";
+  orientation: "straight" | "gay" | "bisexual";
   age: number;
   city: string;
   area: string;
@@ -51,7 +52,9 @@ export default function ProfilePage() {
 
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, display_name, gender, age, city, area, bio, photo_url, whatsapp, telegram")
+        .select(
+          "id, display_name, gender, orientation, age, city, area, bio, photo_url, whatsapp, telegram"
+        )
         .eq("username", username)
         .eq("status", "approved")
         .eq("is_active", true)
@@ -142,7 +145,7 @@ export default function ProfilePage() {
             {p.display_name} <span className="text-[#ff5f8f] text-2xl">· {p.age}</span>
           </h1>
           <p className="text-[#c9a7b3] mt-2 text-sm">
-            {p.city}, {p.area} · {p.gender}
+            {p.city}, {p.area} · {p.gender} · {p.orientation}
           </p>
 
           {p.bio ? <p className="mt-5 text-[#e8d1d8] leading-relaxed">{p.bio}</p> : null}

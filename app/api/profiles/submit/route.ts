@@ -63,6 +63,7 @@ export async function POST(req: NextRequest) {
 
     const display_name = String(form.get("display_name") ?? "").trim();
     const gender = String(form.get("gender") ?? "").trim();
+    const orientation = String(form.get("orientation") ?? "").trim();
     const age = Number(form.get("age") ?? 0);
     const city = String(form.get("city") ?? "").trim();
     const area = String(form.get("area") ?? "").trim();
@@ -84,8 +85,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!["female", "male", "nonbinary"].includes(gender)) {
+    if (!["female", "male"].includes(gender)) {
       return NextResponse.json({ error: "Invalid gender." }, { status: 400 });
+    }
+
+    if (!["straight", "gay", "bisexual"].includes(orientation)) {
+      return NextResponse.json({ error: "Invalid preference." }, { status: 400 });
     }
 
     if (!Number.isFinite(age) || age < 18 || age > 99) {
@@ -162,6 +167,7 @@ export async function POST(req: NextRequest) {
           username: usernameRow.username,
           display_name,
           gender,
+          orientation,
           age,
           city,
           area,

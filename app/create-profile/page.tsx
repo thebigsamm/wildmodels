@@ -19,6 +19,7 @@ export default function CreateProfilePage() {
 
   const [displayName, setDisplayName] = useState("");
   const [gender, setGender] = useState<"female" | "male">("female");
+  const [orientation, setOrientation] = useState<"straight" | "gay" | "bisexual">("straight");
   const [age, setAge] = useState<number>(18);
   const [city, setCity] = useState<NgTopState | "">("");
   const [area, setArea] = useState("");
@@ -75,6 +76,7 @@ export default function CreateProfilePage() {
     const fd = new FormData();
     fd.append("display_name", displayName.trim());
     fd.append("gender", gender);
+    fd.append("orientation", orientation);
     fd.append("age", String(age));
     fd.append("city", city);
     fd.append("area", area.trim());
@@ -103,6 +105,7 @@ export default function CreateProfilePage() {
     setMsg("Submitted ✅ Your profile is pending approval.");
     setDisplayName("");
     setGender("female");
+    setOrientation("straight");
     setAge(18);
     setCity("");
     setArea("");
@@ -195,7 +198,7 @@ export default function CreateProfilePage() {
             />
           </label>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <label className="grid gap-1">
               <span className={labelClass}>Gender</span>
               <select
@@ -205,6 +208,21 @@ export default function CreateProfilePage() {
               >
                 <option value="female">Female</option>
                 <option value="male">Male</option>
+              </select>
+            </label>
+
+            <label className="grid gap-1">
+              <span className={labelClass}>Preference</span>
+              <select
+                className={inputClass}
+                value={orientation}
+                onChange={(e) =>
+                  setOrientation(e.target.value as "straight" | "gay" | "bisexual")
+                }
+              >
+                <option value="straight">Straight</option>
+                <option value="gay">Gay</option>
+                <option value="bisexual">Bisexual</option>
               </select>
             </label>
 
