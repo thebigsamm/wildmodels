@@ -152,6 +152,7 @@ export default function Page() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [hasProfile, setHasProfile] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   // Filters
   const [ai, setAi] = useState("");
@@ -272,6 +273,15 @@ export default function Page() {
           Browse
         </h1>
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => setFiltersOpen(true)}
+            className="rounded-full border border-[#ff115a]/40 px-4 py-2 text-sm font-bold text-[#ff5f8f] hover:bg-[#ff115a]/10"
+          >
+            Filters
+            {gender !== "all" || orientation !== "all" || city !== "all" || area.trim() || minAge !== "" || maxAge !== ""
+              ? " •"
+              : ""}
+          </button>
           {!hasProfile ? (
             <Link
               href="/create-profile"
@@ -289,114 +299,141 @@ export default function Page() {
         </div>
       </div>
 
-      <div className="mt-5 grid gap-3 lg:grid-cols-3">
-        <div className="rounded-2xl border border-[#ff115a]/25 bg-[#150109] p-4 lg:col-span-3">
-          <div className="text-sm font-bold text-[#ff5f8f]">AI Search (v1)</div>
-          <div className="mt-2 flex gap-2 flex-wrap">
-            <input
-              className="min-w-[240px] flex-1 rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef] placeholder:text-[#8f6b78]"
-              placeholder='Try: "female lagos lekki 18-25"'
-              value={ai}
-              onChange={(e) => setAi(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") applyAi();
-              }}
-            />
+      <div className="mt-5 lg:flex lg:items-start lg:gap-6">
+        {filtersOpen ? (
+          <aside className="fixed inset-0 z-40 overflow-y-auto bg-[#060002] p-4 lg:static lg:z-auto lg:w-72 lg:shrink-0 lg:overflow-visible lg:bg-transparent lg:p-0">
+            <div className="flex items-center justify-between lg:hidden">
+              <div className="font-[family-name:var(--font-display)] text-2xl uppercase text-[#fbecef]">
+                Filters
+              </div>
+              <button
+                onClick={() => setFiltersOpen(false)}
+                className="rounded-full border border-white/20 px-3 py-1.5 text-sm text-[#fbecef] hover:bg-white/5"
+              >
+                Close ✕
+              </button>
+            </div>
+
+            <div className="mt-4 grid gap-3 lg:mt-0">
+              <div className="rounded-2xl border border-[#ff115a]/25 bg-[#150109] p-4">
+                <div className="text-sm font-bold text-[#ff5f8f]">AI Search (v1)</div>
+                <div className="mt-2 flex gap-2 flex-wrap">
+                  <input
+                    className="min-w-[160px] flex-1 rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef] placeholder:text-[#8f6b78]"
+                    placeholder='Try: "female lagos lekki 18-25"'
+                    value={ai}
+                    onChange={(e) => setAi(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") applyAi();
+                    }}
+                  />
+                  <button
+                    className="rounded-lg border border-white/10 bg-[#220413] px-3 py-2 text-[#fbecef] hover:bg-white/5"
+                    onClick={applyAi}
+                  >
+                    Apply
+                  </button>
+                  <button
+                    className="rounded-lg border border-white/10 bg-[#220413] px-3 py-2 text-[#fbecef] hover:bg-white/5"
+                    onClick={clearFilters}
+                  >
+                    Clear
+                  </button>
+                </div>
+                <div className="mt-2 text-xs text-[#8f6b78]">
+                  This converts text into filters. Real ranking/AI comes later.
+                </div>
+              </div>
+
+              <select
+                className="rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef]"
+                value={gender}
+                onChange={(e) => setGender(e.target.value as any)}
+              >
+                <option value="all">Gender</option>
+                <option value="female">Female</option>
+                <option value="male">Male</option>
+              </select>
+
+              <select
+                className="rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef]"
+                value={orientation}
+                onChange={(e) => setOrientation(e.target.value as any)}
+              >
+                <option value="all">Preference</option>
+                <option value="straight">Straight</option>
+                <option value="gay">Gay</option>
+                <option value="bisexual">Bisexual</option>
+              </select>
+
+              <select
+                className="rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef]"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+              >
+                {cityOptions.map((c) => (
+                  <option key={c} value={c}>
+                    {c === "all" ? "State" : c}
+                  </option>
+                ))}
+              </select>
+
+              <input
+                className="rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef] placeholder:text-[#8f6b78]"
+                placeholder="Area (e.g., Lekki, Wuse)"
+                value={area}
+                onChange={(e) => setArea(e.target.value)}
+              />
+
+              <div className="flex gap-3">
+                <input
+                  className="w-full rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef] placeholder:text-[#8f6b78]"
+                  type="number"
+                  min={18}
+                  max={99}
+                  placeholder="Min age"
+                  value={minAge}
+                  onChange={(e) => setMinAge(e.target.value === "" ? "" : Number(e.target.value))}
+                />
+
+                <input
+                  className="w-full rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef] placeholder:text-[#8f6b78]"
+                  type="number"
+                  min={18}
+                  max={99}
+                  placeholder="Max age"
+                  value={maxAge}
+                  onChange={(e) => setMaxAge(e.target.value === "" ? "" : Number(e.target.value))}
+                />
+              </div>
+
+              <div className="rounded-lg border border-white/10 bg-[#220413] p-2 text-sm text-[#c9a7b3]">
+                Showing <span className="font-bold text-[#ff5f8f]">{filtered.length}</span> profiles
+              </div>
+            </div>
+
             <button
-              className="rounded-lg border border-white/10 bg-[#220413] px-3 py-2 text-[#fbecef] hover:bg-white/5"
-              onClick={applyAi}
+              onClick={() => setFiltersOpen(false)}
+              className="mt-4 w-full rounded-full bg-gradient-to-r from-[#ff115a] to-[#c400ff] p-3 font-bold text-[#060002] hover:opacity-90 lg:hidden"
             >
-              Apply
+              Show {filtered.length} results
             </button>
-            <button
-              className="rounded-lg border border-white/10 bg-[#220413] px-3 py-2 text-[#fbecef] hover:bg-white/5"
-              onClick={clearFilters}
-            >
-              Clear
-            </button>
-          </div>
-          <div className="mt-2 text-xs text-[#8f6b78]">
-            This converts text into filters. Real ranking/AI comes later.
-          </div>
-        </div>
+          </aside>
+        ) : null}
 
-        <select
-          className="rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef]"
-          value={gender}
-          onChange={(e) => setGender(e.target.value as any)}
-        >
-          <option value="all">Gender</option>
-          <option value="female">Female</option>
-          <option value="male">Male</option>
-        </select>
+        <div className="min-w-0 flex-1">
+          {loading ? <p className="text-[#c9a7b3]">Loading profiles…</p> : null}
 
-        <select
-          className="rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef]"
-          value={orientation}
-          onChange={(e) => setOrientation(e.target.value as any)}
-        >
-          <option value="all">Preference</option>
-          <option value="straight">Straight</option>
-          <option value="gay">Gay</option>
-          <option value="bisexual">Bisexual</option>
-        </select>
+          {errorMsg ? (
+            <div className="rounded-lg border border-[#ff115a]/40 bg-[#150109] p-3">
+              <div className="font-bold text-[#ff5f8f]">Couldn’t load profiles</div>
+              <div className="mt-1 text-sm text-[#c9a7b3]">{errorMsg}</div>
+            </div>
+          ) : null}
 
-        <select
-          className="rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef]"
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-        >
-          {cityOptions.map((c) => (
-            <option key={c} value={c}>
-              {c === "all" ? "State" : c}
-            </option>
-          ))}
-        </select>
-
-        <input
-          className="rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef] placeholder:text-[#8f6b78]"
-          placeholder="Area (e.g., Lekki, Wuse)"
-          value={area}
-          onChange={(e) => setArea(e.target.value)}
-        />
-
-        <input
-          className="rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef] placeholder:text-[#8f6b78]"
-          type="number"
-          min={18}
-          max={99}
-          placeholder="Min age"
-          value={minAge}
-          onChange={(e) => setMinAge(e.target.value === "" ? "" : Number(e.target.value))}
-        />
-
-        <input
-          className="rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef] placeholder:text-[#8f6b78]"
-          type="number"
-          min={18}
-          max={99}
-          placeholder="Max age"
-          value={maxAge}
-          onChange={(e) => setMaxAge(e.target.value === "" ? "" : Number(e.target.value))}
-        />
-
-        <div className="rounded-lg border border-white/10 bg-[#220413] p-2 text-sm text-[#c9a7b3]">
-          Showing <span className="font-bold text-[#ff5f8f]">{filtered.length}</span> profiles
-        </div>
-      </div>
-
-      {loading ? <p className="mt-6 text-[#c9a7b3]">Loading profiles…</p> : null}
-
-      {errorMsg ? (
-        <div className="mt-6 rounded-lg border border-[#ff115a]/40 bg-[#150109] p-3">
-          <div className="font-bold text-[#ff5f8f]">Couldn’t load profiles</div>
-          <div className="mt-1 text-sm text-[#c9a7b3]">{errorMsg}</div>
-        </div>
-      ) : null}
-
-      {!loading && !errorMsg ? (
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filtered.map((p, i) => (
+          {!loading && !errorMsg ? (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+              {filtered.map((p, i) => (
             <Link
               key={p.id}
               href={`/profile/${p.username}`}
@@ -447,6 +484,8 @@ export default function Page() {
           ))}
         </div>
       ) : null}
+        </div>
+      </div>
       </div>
     </main>
   );
