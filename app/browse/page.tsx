@@ -317,45 +317,49 @@ export default function Page() {
           </div>
         </div>
 
-        <select
-          className="rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef]"
-          value={gender}
-          onChange={(e) => setGender(e.target.value as any)}
-        >
-          <option value="all">Gender</option>
-          <option value="female">Female</option>
-          <option value="male">Male</option>
-        </select>
+        <div className="flex gap-3">
+          <select
+            className="w-full min-w-0 rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef]"
+            value={gender}
+            onChange={(e) => setGender(e.target.value as any)}
+          >
+            <option value="all">Gender</option>
+            <option value="female">Female</option>
+            <option value="male">Male</option>
+          </select>
 
-        <select
-          className="rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef]"
-          value={orientation}
-          onChange={(e) => setOrientation(e.target.value as any)}
-        >
-          <option value="all">Preference</option>
-          <option value="straight">Straight</option>
-          <option value="gay">Gay</option>
-          <option value="bisexual">Bisexual</option>
-        </select>
+          <select
+            className="w-full min-w-0 rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef]"
+            value={orientation}
+            onChange={(e) => setOrientation(e.target.value as any)}
+          >
+            <option value="all">Preference</option>
+            <option value="straight">Straight</option>
+            <option value="gay">Gay</option>
+            <option value="bisexual">Bisexual</option>
+          </select>
+        </div>
 
-        <select
-          className="rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef]"
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-        >
-          {cityOptions.map((c) => (
-            <option key={c} value={c}>
-              {c === "all" ? "State" : c}
-            </option>
-          ))}
-        </select>
+        <div className="flex gap-3">
+          <select
+            className="w-full min-w-0 rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef]"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+          >
+            {cityOptions.map((c) => (
+              <option key={c} value={c}>
+                {c === "all" ? "State" : c}
+              </option>
+            ))}
+          </select>
 
-        <input
-          className="rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef] placeholder:text-[#8f6b78]"
-          placeholder="Area (e.g., Lekki, Wuse)"
-          value={area}
-          onChange={(e) => setArea(e.target.value)}
-        />
+          <input
+            className="w-full min-w-0 rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef] placeholder:text-[#8f6b78]"
+            placeholder="Area (e.g., Lekki)"
+            value={area}
+            onChange={(e) => setArea(e.target.value)}
+          />
+        </div>
 
         <div className="flex gap-3">
           <input
