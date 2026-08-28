@@ -15,8 +15,8 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "WildModels",
-  description: "Nigeria-first hookup & dating discovery.",
+  title: "WildModels — Naija's wild side.",
+  description: "Naija's wild side. Nigeria-first hookup & dating discovery.",
 };
 
 export default function RootLayout({

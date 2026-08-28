@@ -40,7 +40,10 @@ export default async function Home() {
 
       <div className="relative mx-auto max-w-5xl px-6 py-16">
         <div className="max-w-2xl">
-          <h1 className="font-[family-name:var(--font-display)] text-5xl uppercase leading-[0.98] tracking-wide text-[#fbecef]">
+          <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#ff5f8f]">
+            Naija&apos;s wild side.
+          </p>
+          <h1 className="mt-3 font-[family-name:var(--font-display)] text-5xl uppercase leading-[0.98] tracking-wide text-[#fbecef]">
             Stop scrolling.
             <br />
             <span className="bg-gradient-to-r from-[#ff115a] to-[#c400ff] bg-clip-text text-transparent">
