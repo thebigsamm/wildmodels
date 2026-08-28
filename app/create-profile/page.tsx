@@ -18,7 +18,7 @@ export default function CreateProfilePage() {
   const [msg, setMsg] = useState<string | null>(null);
 
   const [displayName, setDisplayName] = useState("");
-  const [gender, setGender] = useState<"female" | "male" | "nonbinary">("female");
+  const [gender, setGender] = useState<"female" | "male">("female");
   const [age, setAge] = useState<number>(18);
   const [city, setCity] = useState<NgTopState | "">("");
   const [area, setArea] = useState("");
@@ -201,11 +201,10 @@ export default function CreateProfilePage() {
               <select
                 className={inputClass}
                 value={gender}
-                onChange={(e) => setGender(e.target.value as "female" | "male" | "nonbinary")}
+                onChange={(e) => setGender(e.target.value as "female" | "male")}
               >
                 <option value="female">Female</option>
                 <option value="male">Male</option>
-                <option value="nonbinary">Non-binary</option>
               </select>
             </label>
 
