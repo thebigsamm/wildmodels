@@ -357,25 +357,27 @@ export default function Page() {
           onChange={(e) => setArea(e.target.value)}
         />
 
-        <input
-          className="rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef] placeholder:text-[#8f6b78]"
-          type="number"
-          min={18}
-          max={99}
-          placeholder="Min age"
-          value={minAge}
-          onChange={(e) => setMinAge(e.target.value === "" ? "" : Number(e.target.value))}
-        />
+        <div className="flex gap-3">
+          <input
+            className="w-full min-w-0 rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef] placeholder:text-[#8f6b78]"
+            type="number"
+            min={18}
+            max={99}
+            placeholder="Min age"
+            value={minAge}
+            onChange={(e) => setMinAge(e.target.value === "" ? "" : Number(e.target.value))}
+          />
 
-        <input
-          className="rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef] placeholder:text-[#8f6b78]"
-          type="number"
-          min={18}
-          max={99}
-          placeholder="Max age"
-          value={maxAge}
-          onChange={(e) => setMaxAge(e.target.value === "" ? "" : Number(e.target.value))}
-        />
+          <input
+            className="w-full min-w-0 rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef] placeholder:text-[#8f6b78]"
+            type="number"
+            min={18}
+            max={99}
+            placeholder="Max age"
+            value={maxAge}
+            onChange={(e) => setMaxAge(e.target.value === "" ? "" : Number(e.target.value))}
+          />
+        </div>
 
         <div className="rounded-lg border border-white/10 bg-[#220413] p-2 text-sm text-[#c9a7b3]">
           Showing <span className="font-bold text-[#ff5f8f]">{filtered.length}</span> profiles
