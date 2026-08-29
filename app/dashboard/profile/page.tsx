@@ -83,9 +83,10 @@ export default function EditProfilePage() {
 
     setSaving(true);
 
-    const { error } = await supabase
-      .from("profiles")
-      .update({
+    const res = await fetch("/api/profiles/edit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
         display_name: displayName.trim(),
         orientation,
         age,
@@ -94,17 +95,19 @@ export default function EditProfilePage() {
         bio: bio.trim(),
         whatsapp: whatsapp.trim() || null,
         telegram: telegram.trim() || null,
-      })
-      .eq("id", profileId);
+      }),
+    });
+
+    const data = await res.json();
 
     setSaving(false);
 
-    if (error) {
-      setMsg(`Error: ${error.message}`);
+    if (!res.ok) {
+      setMsg(`Error: ${data.error || "Failed"}`);
       return;
     }
 
-    setMsg("Profile updated successfully.");
+    setMsg("Saved. Your changes are pending admin review before they go live again.");
     router.refresh();
   }
 
