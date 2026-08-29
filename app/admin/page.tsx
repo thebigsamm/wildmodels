@@ -46,6 +46,32 @@ type AdminPhoto = {
   created_at: string;
 };
 
+type PreviewProfile = {
+  id: string;
+  username: string;
+  display_name: string;
+  gender: string;
+  orientation: string;
+  age: number;
+  city: string;
+  area: string;
+  bio: string | null;
+  photo_url: string | null;
+  whatsapp: string | null;
+  telegram: string | null;
+  status: "pending" | "approved" | "rejected";
+  is_active: boolean;
+  is_hidden_by_owner: boolean;
+  deleted_at: string | null;
+  created_at: string;
+};
+
+type PreviewPhoto = {
+  id: string;
+  url: string;
+  sort_order: number;
+};
+
 type AllProfileRow = {
   id: string;
   username: string;
@@ -154,6 +180,13 @@ export default function AdminPage() {
 
   // Quick manage photos search
   const [photoSearchId, setPhotoSearchId] = useState("");
+
+  // Profile preview modal (admin-only view, bypasses the approved-only
+  // restriction on the public profile page)
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewProfile, setPreviewProfile] = useState<PreviewProfile | null>(null);
+  const [previewPhotos, setPreviewPhotos] = useState<PreviewPhoto[]>([]);
 
   // Messages
   const [msg, setMsg] = useState<string | null>(null);
@@ -271,7 +304,9 @@ export default function AdminPage() {
     }
 
     setMsg(`Updated: ${status}`);
-    await loadPending();
+    if (tab === "all") await loadAll();
+    else if (tab === "pending") await loadPending();
+    else await loadReports();
   }
 
   async function loadReports(nextStatus?: "open" | "closed") {
@@ -525,6 +560,46 @@ export default function AdminPage() {
     setPhotoLoading(false);
   }
 
+  // ---- PROFILE PREVIEW MODAL ----
+  async function openPreview(profileId: string) {
+    if (!requireSecret()) return;
+    setPreviewOpen(true);
+    setPreviewLoading(true);
+    setPreviewProfile(null);
+    setPreviewPhotos([]);
+
+    const res = await fetch("/api/admin/profiles/preview", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ secret: secretTrim, profileId }),
+    });
+
+    const data = await res.json();
+    setPreviewLoading(false);
+
+    if (!res.ok) {
+      setMsg(data.error || "Failed to load profile.");
+      setPreviewOpen(false);
+      return;
+    }
+
+    setPreviewProfile(data.profile as PreviewProfile);
+    setPreviewPhotos((data.photos ?? []) as PreviewPhoto[]);
+  }
+
+  function closePreviewModal() {
+    setPreviewOpen(false);
+    setPreviewProfile(null);
+    setPreviewPhotos([]);
+    setPreviewLoading(false);
+  }
+
+  async function updateStatusFromPreview(status: "approved" | "rejected") {
+    if (!previewProfile) return;
+    await updateStatus(previewProfile.id, status);
+    closePreviewModal();
+  }
+
   return (
     <main className="min-h-screen bg-[#060002]">
       <div className="sticky top-0 z-20 border-b border-white/10 bg-[#060002]/90 backdrop-blur">
@@ -720,6 +795,7 @@ export default function AdminPage() {
                         <Btn onClick={() => copyText("Profile ID", r.profile_id)}>
                           Copy ID
                         </Btn>
+                        {pr ? <Btn onClick={() => openPreview(pr.id)}>Preview</Btn> : null}
                         {pr ? (
                           <Link
                             className="underline text-sm text-[#c9a7b3] hover:text-[#ff5f8f]"
@@ -770,6 +846,17 @@ export default function AdminPage() {
                     </div>
 
                     <div className="mt-3 flex flex-wrap gap-2">
+                      {pr && pr.status === "pending" ? (
+                        <>
+                          <Btn tone="primary" onClick={() => updateStatus(pr.id, "approved")}>
+                            Approve
+                          </Btn>
+                          <Btn tone="danger" onClick={() => updateStatus(pr.id, "rejected")}>
+                            Reject
+                          </Btn>
+                        </>
+                      ) : null}
+
                       {pr ? (
                         pr.is_active ? (
                           <Btn tone="danger" onClick={() => setProfileActive(pr.id, false)}>
@@ -849,6 +936,7 @@ export default function AdminPage() {
 
                     <div className="flex items-center gap-2">
                       <Btn onClick={() => copyText("Profile ID", r.id)}>Copy ID</Btn>
+                      <Btn onClick={() => openPreview(r.id)}>Preview</Btn>
                       <Link
                         className="underline text-sm text-[#c9a7b3] hover:text-[#ff5f8f]"
                         href={`/profile/${r.username}`}
@@ -934,6 +1022,7 @@ export default function AdminPage() {
 
                       <div className="flex items-center gap-2">
                         <Btn onClick={() => copyText("Profile ID", row.id)}>Copy ID</Btn>
+                        <Btn onClick={() => openPreview(row.id)}>Preview</Btn>
                         <Link
                           className="underline text-sm text-[#c9a7b3] hover:text-[#ff5f8f]"
                           href={`/profile/${row.username}`}
@@ -944,6 +1033,16 @@ export default function AdminPage() {
                     </div>
 
                     <div className="mt-3 flex flex-wrap gap-2">
+                      {row.status === "pending" ? (
+                        <>
+                          <Btn tone="primary" onClick={() => updateStatus(row.id, "approved")}>
+                            Approve
+                          </Btn>
+                          <Btn tone="danger" onClick={() => updateStatus(row.id, "rejected")}>
+                            Reject
+                          </Btn>
+                        </>
+                      ) : null}
                       <Btn onClick={() => openManagePhotos(row.id)}>Manage photos</Btn>
                       {archived ? (
                         <Btn onClick={() => unarchiveProfile(row.id)}>Unarchive</Btn>
@@ -1036,6 +1135,97 @@ export default function AdminPage() {
 
             {photoRows.length === 0 && !photoLoading ? (
               <div className="mt-4 text-[#8f6b78]">No photos found for this profile.</div>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+
+      {/* PROFILE PREVIEW MODAL */}
+      {previewOpen ? (
+        <div className="fixed inset-0 z-50 bg-black/70 grid place-items-center p-4">
+          <div className="w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-2xl bg-[#150109] border border-white/10 p-4">
+            <div className="flex items-center justify-between gap-3">
+              <div className="font-bold text-[#fbecef]">Profile Preview</div>
+              <Btn onClick={closePreviewModal}>Close</Btn>
+            </div>
+
+            {previewLoading ? <div className="mt-4 text-sm text-[#c9a7b3]">Loading…</div> : null}
+
+            {!previewLoading && previewProfile ? (
+              <div className="mt-4 grid gap-4">
+                <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                  {previewPhotos.length ? (
+                    previewPhotos.map((ph) => (
+                      <div key={ph.id} className="aspect-[4/3] overflow-hidden rounded-lg bg-white/5">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={ph.url} alt="photo" className="h-full w-full object-cover" />
+                      </div>
+                    ))
+                  ) : (
+                    <div className="col-span-3 sm:col-span-4 text-sm text-[#8f6b78]">
+                      No photos uploaded.
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <div className="font-semibold text-[#fbecef]">
+                    {previewProfile.display_name} • {previewProfile.age} • {previewProfile.gender}
+                    {" • "}
+                    {previewProfile.orientation}
+                  </div>
+                  <div className="text-sm text-[#8f6b78]">
+                    @{previewProfile.username} • {previewProfile.city}, {previewProfile.area}
+                  </div>
+                </div>
+
+                {previewProfile.bio ? (
+                  <p className="text-sm text-[#e8d1d8] whitespace-pre-wrap">{previewProfile.bio}</p>
+                ) : (
+                  <p className="text-sm text-[#8f6b78]">No bio provided.</p>
+                )}
+
+                <div className="text-sm text-[#c9a7b3]">
+                  {previewProfile.whatsapp ? <div>WhatsApp: {previewProfile.whatsapp}</div> : null}
+                  {previewProfile.telegram ? <div>Telegram: {previewProfile.telegram}</div> : null}
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  <Badge
+                    tone={
+                      previewProfile.status === "approved"
+                        ? "good"
+                        : previewProfile.status === "pending"
+                        ? "warn"
+                        : "bad"
+                    }
+                  >
+                    status: {previewProfile.status}
+                  </Badge>
+                  <Badge tone={previewProfile.is_active ? "good" : "bad"}>
+                    active: {previewProfile.is_active ? "true" : "false"}
+                  </Badge>
+                  {previewProfile.is_hidden_by_owner ? (
+                    <Badge tone="warn">hidden by owner</Badge>
+                  ) : null}
+                  {previewProfile.deleted_at ? <Badge tone="bad">archived</Badge> : null}
+                </div>
+
+                {previewProfile.status === "pending" ? (
+                  <div className="flex flex-wrap gap-2 border-t border-white/10 pt-4">
+                    <Btn tone="primary" onClick={() => updateStatusFromPreview("approved")}>
+                      Approve
+                    </Btn>
+                    <Btn tone="danger" onClick={() => updateStatusFromPreview("rejected")}>
+                      Reject
+                    </Btn>
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+
+            {!previewLoading && !previewProfile ? (
+              <div className="mt-4 text-sm text-[#8f6b78]">Couldn&apos;t load this profile.</div>
             ) : null}
           </div>
         </div>
