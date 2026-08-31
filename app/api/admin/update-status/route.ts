@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { resend } from "@/lib/resend";
+import { approvedEmail, rejectedEmail } from "@/lib/emails/profileStatus";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
-
-// NOTE: we need SERVICE ROLE KEY to update regardless of RLS.
-// We'll add it next.
 
 export async function POST(req: NextRequest) {
   try {
@@ -26,6 +25,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing id/status" }, { status: 400 });
     }
 
+    const { data: profile, error: fetchErr } = await supabaseAdmin
+      .from("profiles")
+      .select("id, user_id, username, display_name, status")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (fetchErr) {
+      return NextResponse.json({ error: fetchErr.message }, { status: 400 });
+    }
+
+    if (!profile) {
+      return NextResponse.json({ error: "Profile not found." }, { status: 404 });
+    }
+
+    const previousStatus = profile.status;
+
     const { error } = await supabaseAdmin
       .from("profiles")
       .update({ status })
@@ -33,6 +48,37 @@ export async function POST(req: NextRequest) {
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+
+    // Notify the owner on an actual status change to approved/rejected. Best
+    // effort - a failed notification email should never fail the underlying
+    // moderation action.
+    if (status !== previousStatus && (status === "approved" || status === "rejected")) {
+      try {
+        const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(
+          profile.user_id
+        );
+        const email = authUser?.user?.email;
+
+        if (email) {
+          const { subject, html } =
+            status === "approved"
+              ? approvedEmail({
+                  displayName: profile.display_name,
+                  username: profile.username,
+                })
+              : rejectedEmail({ displayName: profile.display_name });
+
+          await resend.emails.send({
+            from: "WildModels <no-reply@wildmodels.xyz>",
+            to: [email],
+            subject,
+            html,
+          });
+        }
+      } catch (emailErr) {
+        console.error("Failed to send status notification email:", emailErr);
+      }
     }
 
     return NextResponse.json({ ok: true });
