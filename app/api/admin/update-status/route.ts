@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
 
     const { data: profile, error: fetchErr } = await supabaseAdmin
       .from("profiles")
-      .select("id, user_id, username, display_name, status")
+      .select("id, user_id, username, display_name, status, first_approved_at")
       .eq("id", id)
       .maybeSingle();
 
@@ -40,10 +40,18 @@ export async function POST(req: NextRequest) {
     }
 
     const previousStatus = profile.status;
+    // If this profile has ever been approved before, any subsequent
+    // approval/rejection is for an edit, not the original submission.
+    const isEdit = !!profile.first_approved_at;
+
+    const update: { status: typeof status; first_approved_at?: string } = { status };
+    if (status === "approved" && !isEdit) {
+      update.first_approved_at = new Date().toISOString();
+    }
 
     const { error } = await supabaseAdmin
       .from("profiles")
-      .update({ status })
+      .update(update)
       .eq("id", id);
 
     if (error) {
@@ -66,8 +74,9 @@ export async function POST(req: NextRequest) {
               ? approvedEmail({
                   displayName: profile.display_name,
                   username: profile.username,
+                  isEdit,
                 })
-              : rejectedEmail({ displayName: profile.display_name });
+              : rejectedEmail({ displayName: profile.display_name, isEdit });
 
           await resend.emails.send({
             from: "WildModels <no-reply@wildmodels.xyz>",
