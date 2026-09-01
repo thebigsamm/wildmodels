@@ -44,7 +44,7 @@ export default function ToggleProfileVisibilityButton({
         disabled={working}
         className="rounded-full border border-white/20 px-4 py-2 text-sm font-bold text-[#fbecef] hover:bg-white/5 disabled:opacity-50"
       >
-        {working ? "Updating..." : hidden ? "Show profile" : "Hide profile"}
+        {working ? "Updating..." : hidden ? "Show profile" : "Hide profile from public view"}
       </button>
       {msg ? <p className="mt-2 text-sm text-[#ff5f8f]">{msg}</p> : null}
     </div>
