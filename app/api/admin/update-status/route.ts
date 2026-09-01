@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
 
     const { data: profile, error: fetchErr } = await supabaseAdmin
       .from("profiles")
-      .select("id, user_id, username, display_name, status, first_approved_at")
+      .select("id, user_id, username, display_name, status, first_approved_at, rejection_count")
       .eq("id", id)
       .maybeSingle();
 
@@ -44,9 +44,23 @@ export async function POST(req: NextRequest) {
     // approval/rejection is for an edit, not the original submission.
     const isEdit = !!profile.first_approved_at;
 
-    const update: { status: typeof status; first_approved_at?: string } = { status };
-    if (status === "approved" && !isEdit) {
-      update.first_approved_at = new Date().toISOString();
+    const update: {
+      status: typeof status;
+      first_approved_at?: string;
+      rejection_count?: number;
+    } = { status };
+
+    if (status === "approved") {
+      if (!isEdit) update.first_approved_at = new Date().toISOString();
+      // A fresh approval clears past rejections - they've since produced an
+      // acceptable profile, so a future edit shouldn't inherit an old count.
+      update.rejection_count = 0;
+    }
+
+    let newRejectionCount = profile.rejection_count;
+    if (status === "rejected") {
+      newRejectionCount = profile.rejection_count + 1;
+      update.rejection_count = newRejectionCount;
     }
 
     const { error } = await supabaseAdmin
@@ -76,7 +90,11 @@ export async function POST(req: NextRequest) {
                   username: profile.username,
                   isEdit,
                 })
-              : rejectedEmail({ displayName: profile.display_name, isEdit });
+              : rejectedEmail({
+                  displayName: profile.display_name,
+                  isEdit,
+                  rejectionCount: newRejectionCount,
+                });
 
           await resend.emails.send({
             from: "WildModels <no-reply@wildmodels.xyz>",

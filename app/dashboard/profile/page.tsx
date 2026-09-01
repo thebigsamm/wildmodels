@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { NG_TOP_STATES, type NgTopState } from "@/lib/ngStates";
 import { SiteHeader } from "@/components/SiteHeader";
+import { isLockedOut } from "@/lib/profileStatus";
 
 type Profile = {
   id: string;
@@ -16,6 +17,8 @@ type Profile = {
   bio: string | null;
   whatsapp: string | null;
   telegram: string | null;
+  status: string;
+  rejection_count: number;
 };
 
 export default function EditProfilePage() {
@@ -26,6 +29,7 @@ export default function EditProfilePage() {
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [profileId, setProfileId] = useState<string | null>(null);
+  const [lockedOut, setLockedOut] = useState(false);
 
   const [displayName, setDisplayName] = useState("");
   const [orientation, setOrientation] = useState<"straight" | "gay" | "bisexual">("straight");
@@ -57,6 +61,7 @@ export default function EditProfilePage() {
 
       const p = data.profile as Profile;
       setProfileId(p.id);
+      setLockedOut(isLockedOut(p.status, p.rejection_count));
       setDisplayName(p.display_name || "");
       setOrientation(p.orientation || "straight");
       setAge(p.age || 18);
@@ -144,6 +149,22 @@ export default function EditProfilePage() {
             Manage photos
           </a>
         </div>
+
+        {lockedOut ? (
+          <div className="mt-6 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5">
+            <p className="font-bold text-amber-300">You&rsquo;ve used all your resubmission attempts</p>
+            <p className="mt-2 text-sm text-[#c9a7b3]">
+              Your profile stays hidden from Browse for now. Contact support and we&rsquo;ll help
+              you get it sorted.
+            </p>
+            <a
+              href="/support"
+              className="mt-4 inline-block rounded-full bg-gradient-to-r from-[#ff115a] to-[#c400ff] px-5 py-2.5 font-bold text-[#060002] shadow-[0_0_20px_rgba(255,17,90,0.4)] hover:opacity-90"
+            >
+              Contact support
+            </a>
+          </div>
+        ) : null}
 
         <div className="mt-6 grid gap-3 rounded-2xl border border-white/10 bg-[#150109] p-5">
           <label className="grid gap-1">
@@ -237,10 +258,10 @@ export default function EditProfilePage() {
 
           <button
             onClick={saveProfile}
-            disabled={saving}
+            disabled={saving || lockedOut}
             className="rounded-full bg-gradient-to-r from-[#ff115a] to-[#c400ff] px-4 py-2.5 font-bold text-[#060002] shadow-[0_0_20px_rgba(255,17,90,0.4)] hover:opacity-90 disabled:opacity-50"
           >
-            {saving ? "Saving..." : "Save changes"}
+            {saving ? "Saving..." : lockedOut ? "Contact support to continue" : "Save changes"}
           </button>
 
           {msg ? <p className="text-sm text-[#ff5f8f]">{msg}</p> : null}

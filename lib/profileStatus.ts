@@ -3,10 +3,21 @@ export type ProfileStatusInfo = {
   description: string;
 };
 
+export const MAX_REJECTIONS = 3;
+
+export function attemptsRemaining(rejectionCount: number) {
+  return Math.max(0, MAX_REJECTIONS - rejectionCount);
+}
+
+export function isLockedOut(status: string, rejectionCount: number) {
+  return status === "rejected" && rejectionCount >= MAX_REJECTIONS;
+}
+
 export function getProfileStatusInfo(
   status: string,
   isActive: boolean,
-  isHiddenByOwner: boolean = false
+  isHiddenByOwner: boolean = false,
+  rejectionCount: number = 0
 ): ProfileStatusInfo {
   if (status === "pending") {
     return {
@@ -16,10 +27,18 @@ export function getProfileStatusInfo(
   }
 
   if (status === "rejected") {
+    if (isLockedOut(status, rejectionCount)) {
+      return {
+        label: "Rejected",
+        description:
+          "Your profile wasn't approved and you've used all your resubmission attempts. Contact support to get your profile sorted.",
+      };
+    }
+
+    const left = attemptsRemaining(rejectionCount);
     return {
       label: "Rejected",
-      description:
-        "Your profile was not approved. Reach out if you think this is a mistake.",
+      description: `Your profile wasn't approved. You can edit and resubmit — ${left} attempt${left === 1 ? "" : "s"} left before you'll need to contact support.`,
     };
   }
 

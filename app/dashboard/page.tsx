@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
-import { getProfileStatusInfo } from "@/lib/profileStatus";
+import { getProfileStatusInfo, isLockedOut } from "@/lib/profileStatus";
 import { SiteHeader } from "@/components/SiteHeader";
 import ToggleProfileVisibilityButton from "@/components/toggleprofilevisibilitybutton";
 import { BackButton } from "@/components/BackButton";
@@ -19,14 +19,23 @@ export default async function DashboardPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, username, display_name, city, area, status, is_active, is_hidden_by_owner")
+    .select(
+      "id, username, display_name, city, area, status, is_active, is_hidden_by_owner, rejection_count"
+    )
     .eq("user_id", user.id)
     .is("deleted_at", null)
     .maybeSingle();
 
   const statusInfo = profile
-    ? getProfileStatusInfo(profile.status, profile.is_active, profile.is_hidden_by_owner)
+    ? getProfileStatusInfo(
+        profile.status,
+        profile.is_active,
+        profile.is_hidden_by_owner,
+        profile.rejection_count
+      )
     : null;
+
+  const lockedOut = profile ? isLockedOut(profile.status, profile.rejection_count) : false;
 
   return (
     <main className="min-h-screen bg-[#060002]">
@@ -94,12 +103,21 @@ export default async function DashboardPage() {
                 View public profile
               </a>
 
-              <a
-                href="/dashboard/profile"
-                className="rounded-full border border-white/20 px-4 py-2 text-sm font-bold text-[#fbecef] hover:bg-white/5"
-              >
-                Edit Profile/Photos
-              </a>
+              {lockedOut ? (
+                <a
+                  href="/support"
+                  className="rounded-full bg-gradient-to-r from-[#ff115a] to-[#c400ff] px-4 py-2 text-sm font-bold text-[#060002] shadow-[0_0_20px_rgba(255,17,90,0.4)] hover:opacity-90"
+                >
+                  Contact support
+                </a>
+              ) : (
+                <a
+                  href="/dashboard/profile"
+                  className="rounded-full border border-white/20 px-4 py-2 text-sm font-bold text-[#fbecef] hover:bg-white/5"
+                >
+                  Edit Profile/Photos
+                </a>
+              )}
 
               {profile.status === "approved" ? (
                 <ToggleProfileVisibilityButton initialHidden={profile.is_hidden_by_owner} />

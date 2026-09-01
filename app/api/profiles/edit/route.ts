@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { isAllowedNgState } from "@/lib/ngStates";
 import { createRouteHandlerClient } from "@/lib/supabase/server-action";
+import { isLockedOut } from "@/lib/profileStatus";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -50,7 +51,7 @@ export async function POST(req: NextRequest) {
     // Look up the caller's own profile server-side — never trust a client-supplied id.
     const { data: profile, error: findErr } = await supabaseAdmin
       .from("profiles")
-      .select("id")
+      .select("id, status, rejection_count")
       .eq("user_id", user.id)
       .is("deleted_at", null)
       .maybeSingle();
@@ -61,6 +62,16 @@ export async function POST(req: NextRequest) {
 
     if (!profile) {
       return NextResponse.json({ error: "No profile found." }, { status: 404 });
+    }
+
+    if (isLockedOut(profile.status, profile.rejection_count)) {
+      return NextResponse.json(
+        {
+          error:
+            "You've used all your resubmission attempts. Please contact support to get your profile sorted.",
+        },
+        { status: 403 }
+      );
     }
 
     // Edits always drop back to pending — an admin has to re-approve before the

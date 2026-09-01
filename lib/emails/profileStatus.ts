@@ -1,4 +1,5 @@
 import { emailShell, escapeHtml } from "./shell";
+import { attemptsRemaining, isLockedOut } from "../profileStatus";
 
 const SITE_URL = "https://wildmodels.xyz";
 
@@ -40,11 +41,32 @@ export function approvedEmail({
 export function rejectedEmail({
   displayName,
   isEdit,
+  rejectionCount,
 }: {
   displayName: string;
   isEdit: boolean;
+  rejectionCount: number;
 }) {
   const name = displayName ? escapeHtml(displayName) : "there";
+  const locked = isLockedOut("rejected", rejectionCount);
+  const left = attemptsRemaining(rejectionCount);
+
+  if (locked) {
+    return {
+      subject: "Your WildModels profile needs support",
+      html: emailShell({
+        preheader: "You've used all your resubmission attempts - contact support to continue.",
+        eyebrow: "Review update",
+        heading: "Let&rsquo;s get this sorted",
+        bodyHtml: [
+          `Hey ${name} &mdash; your WildModels ${isEdit ? "edit" : "profile"} wasn&rsquo;t approved, and you&rsquo;ve now used all your resubmission attempts.`,
+          `Your profile stays hidden from Browse for now. Reach out to support and we&rsquo;ll help you get it sorted.`,
+        ],
+        ctaLabel: "Contact support",
+        ctaUrl: `${SITE_URL}/support`,
+      }),
+    };
+  }
 
   return {
     subject: isEdit
@@ -59,11 +81,11 @@ export function rejectedEmail({
       bodyHtml: isEdit
         ? [
             `Hey ${name} &mdash; after review, the latest changes to your WildModels profile weren&rsquo;t approved, so your profile isn&rsquo;t visible on Browse right now.`,
-            `You&rsquo;re welcome to review your changes and submit again.`,
+            `You&rsquo;re welcome to review your changes and submit again &mdash; you have ${left} attempt${left === 1 ? "" : "s"} left before you&rsquo;ll need to contact support instead.`,
           ]
         : [
             `Hey ${name} &mdash; after review, your WildModels profile wasn&rsquo;t approved this time.`,
-            `You&rsquo;re welcome to make changes and submit again. Edits go through a quick review before they go live.`,
+            `You&rsquo;re welcome to make changes and submit again &mdash; you have ${left} attempt${left === 1 ? "" : "s"} left before you&rsquo;ll need to contact support instead. Edits go through a quick review before they go live.`,
           ],
       ctaLabel: "Edit your profile",
       ctaUrl: `${SITE_URL}/dashboard/profile`,
