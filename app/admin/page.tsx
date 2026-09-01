@@ -663,10 +663,13 @@ export default function AdminPage() {
             {/* Tabs */}
             <div className="flex gap-2">
               <Btn
-                onClick={() => setTab("reports")}
-                className={tab === "reports" ? "!border-[#ff115a] !bg-[#ff115a] !text-white" : ""}
+                onClick={() => {
+                  setTab("all");
+                  if (allRows.length === 0) loadAll();
+                }}
+                className={tab === "all" ? "!border-[#ff115a] !bg-[#ff115a] !text-white" : ""}
               >
-                Reports
+                All Profiles
               </Btn>
               <Btn
                 onClick={() => setTab("pending")}
@@ -675,13 +678,10 @@ export default function AdminPage() {
                 Pending
               </Btn>
               <Btn
-                onClick={() => {
-                  setTab("all");
-                  if (allRows.length === 0) loadAll();
-                }}
-                className={tab === "all" ? "!border-[#ff115a] !bg-[#ff115a] !text-white" : ""}
+                onClick={() => setTab("reports")}
+                className={tab === "reports" ? "!border-[#ff115a] !bg-[#ff115a] !text-white" : ""}
               >
-                All
+                Reports
               </Btn>
             </div>
           </div>
