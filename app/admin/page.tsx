@@ -185,9 +185,6 @@ export default function AdminPage() {
   const [photoRows, setPhotoRows] = useState<AdminPhoto[]>([]);
   const [photoLoading, setPhotoLoading] = useState(false);
 
-  // Quick manage photos search
-  const [photoSearchId, setPhotoSearchId] = useState("");
-
   // Profile preview modal (admin-only view, bypasses the approved-only
   // restriction on the public profile page)
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -453,15 +450,6 @@ export default function AdminPage() {
     else await loadReports();
   }
 
-  function withSearchId(fn: (id: string) => void) {
-    const id = photoSearchId.trim();
-    if (!id) {
-      setMsg("Paste a profile ID first.");
-      return;
-    }
-    fn(id);
-  }
-
   // ---- PHOTO MODERATION HELPERS ----
   async function openManagePhotos(profileId: string) {
     if (!requireSecret()) return;
@@ -694,22 +682,6 @@ export default function AdminPage() {
                 className={tab === "all" ? "!border-[#ff115a] !bg-[#ff115a] !text-white" : ""}
               >
                 All
-              </Btn>
-            </div>
-
-            {/* Quick profile actions by ID */}
-            <div className="flex flex-wrap gap-2 items-center">
-              <input
-                className="rounded-xl border border-white/10 bg-[#220413] px-3 py-2 text-sm text-[#fbecef] w-[280px] max-w-full placeholder:text-[#8f6b78]"
-                placeholder="Profile ID"
-                value={photoSearchId}
-                onChange={(e) => setPhotoSearchId(e.target.value)}
-              />
-              <Btn onClick={() => withSearchId(openManagePhotos)}>Open photos</Btn>
-              <Btn onClick={() => withSearchId(archiveProfile)}>Archive</Btn>
-              <Btn onClick={() => withSearchId(unarchiveProfile)}>Unarchive</Btn>
-              <Btn tone="danger" onClick={() => withSearchId(deleteProfilePermanently)}>
-                Delete permanently
               </Btn>
             </div>
           </div>
