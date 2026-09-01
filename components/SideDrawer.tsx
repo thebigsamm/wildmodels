@@ -99,6 +99,11 @@ export function SideDrawer() {
                   </button>
                 </div>
 
+                <div className={sectionLabelClass}>Menu</div>
+                <Link href="/browse" className={linkClass} onClick={() => setOpen(false)}>
+                  Browse
+                </Link>
+
                 <div className={sectionLabelClass}>Account</div>
                 {!loading && user ? (
                   <>
