@@ -133,9 +133,17 @@ export default function EditProfilePage() {
         <a href="/dashboard" className="text-sm font-semibold text-[#ff5f8f] hover:text-[#fbecef]">
           ← Back to dashboard
         </a>
-        <h1 className="mt-4 font-[family-name:var(--font-display)] text-3xl uppercase text-[#fbecef]">
-          Edit Profile
-        </h1>
+        <div className="mt-4 flex items-center justify-between gap-3">
+          <h1 className="font-[family-name:var(--font-display)] text-3xl uppercase text-[#fbecef]">
+            Edit Profile
+          </h1>
+          <a
+            href="/dashboard/photos"
+            className="rounded-full border border-white/20 px-4 py-2 text-sm font-bold text-[#fbecef] hover:bg-white/5"
+          >
+            Manage photos
+          </a>
+        </div>
 
         <div className="mt-6 grid gap-3 rounded-2xl border border-white/10 bg-[#150109] p-5">
           <label className="grid gap-1">

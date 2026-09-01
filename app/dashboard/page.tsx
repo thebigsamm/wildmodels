@@ -91,13 +91,7 @@ export default async function DashboardPage() {
                 href="/dashboard/profile"
                 className="rounded-full border border-white/20 px-4 py-2 text-sm font-bold text-[#fbecef] hover:bg-white/5"
               >
-                Edit profile
-              </a>
-              <a
-                href="/dashboard/photos"
-                className="rounded-full border border-white/20 px-4 py-2 text-sm font-bold text-[#fbecef] hover:bg-white/5"
-              >
-                Manage photos
+                Edit Profile/Photos
               </a>
 
               {profile.status === "approved" ? (
