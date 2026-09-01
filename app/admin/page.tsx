@@ -2,6 +2,11 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import {
+  SNAPSHOT_FIELDS,
+  SNAPSHOT_FIELD_LABELS,
+  type ProfileSnapshot,
+} from "@/lib/profileSnapshot";
 
 type ProfileRow = {
   id: string;
@@ -64,6 +69,8 @@ type PreviewProfile = {
   is_hidden_by_owner: boolean;
   deleted_at: string | null;
   created_at: string;
+  rejection_count: number;
+  approved_snapshot: ProfileSnapshot | null;
 };
 
 type PreviewPhoto = {
@@ -795,7 +802,7 @@ export default function AdminPage() {
                         <Btn onClick={() => copyText("Profile ID", r.profile_id)}>
                           Copy ID
                         </Btn>
-                        {pr ? <Btn onClick={() => openPreview(pr.id)}>Preview</Btn> : null}
+                        {pr ? <Btn onClick={() => openPreview(pr.id)}>Review</Btn> : null}
                         {pr ? (
                           <Link
                             className="underline text-sm text-[#c9a7b3] hover:text-[#ff5f8f]"
@@ -936,7 +943,7 @@ export default function AdminPage() {
 
                     <div className="flex items-center gap-2">
                       <Btn onClick={() => copyText("Profile ID", r.id)}>Copy ID</Btn>
-                      <Btn onClick={() => openPreview(r.id)}>Preview</Btn>
+                      <Btn onClick={() => openPreview(r.id)}>Review</Btn>
                       <Link
                         className="underline text-sm text-[#c9a7b3] hover:text-[#ff5f8f]"
                         href={`/profile/${r.username}`}
@@ -1022,7 +1029,7 @@ export default function AdminPage() {
 
                       <div className="flex items-center gap-2">
                         <Btn onClick={() => copyText("Profile ID", row.id)}>Copy ID</Btn>
-                        <Btn onClick={() => openPreview(row.id)}>Preview</Btn>
+                        <Btn onClick={() => openPreview(row.id)}>Review</Btn>
                         <Link
                           className="underline text-sm text-[#c9a7b3] hover:text-[#ff5f8f]"
                           href={`/profile/${row.username}`}
@@ -1145,7 +1152,7 @@ export default function AdminPage() {
         <div className="fixed inset-0 z-50 bg-black/70 grid place-items-center p-4">
           <div className="w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-2xl bg-[#150109] border border-white/10 p-4">
             <div className="flex items-center justify-between gap-3">
-              <div className="font-bold text-[#fbecef]">Profile Preview</div>
+              <div className="font-bold text-[#fbecef]">Review Profile</div>
               <Btn onClick={closePreviewModal}>Close</Btn>
             </div>
 
@@ -1170,24 +1177,8 @@ export default function AdminPage() {
 
                 <div>
                   <div className="font-semibold text-[#fbecef]">
-                    {previewProfile.display_name} • {previewProfile.age} • {previewProfile.gender}
-                    {" • "}
-                    {previewProfile.orientation}
+                    @{previewProfile.username} • {previewProfile.gender}
                   </div>
-                  <div className="text-sm text-[#8f6b78]">
-                    @{previewProfile.username} • {previewProfile.city}, {previewProfile.area}
-                  </div>
-                </div>
-
-                {previewProfile.bio ? (
-                  <p className="text-sm text-[#e8d1d8] whitespace-pre-wrap">{previewProfile.bio}</p>
-                ) : (
-                  <p className="text-sm text-[#8f6b78]">No bio provided.</p>
-                )}
-
-                <div className="text-sm text-[#c9a7b3]">
-                  {previewProfile.whatsapp ? <div>WhatsApp: {previewProfile.whatsapp}</div> : null}
-                  {previewProfile.telegram ? <div>Telegram: {previewProfile.telegram}</div> : null}
                 </div>
 
                 <div className="flex flex-wrap gap-2">
@@ -1209,18 +1200,60 @@ export default function AdminPage() {
                     <Badge tone="warn">hidden by owner</Badge>
                   ) : null}
                   {previewProfile.deleted_at ? <Badge tone="bad">archived</Badge> : null}
+                  {previewProfile.status === "rejected" ? (
+                    <Badge tone={previewProfile.rejection_count >= 3 ? "bad" : "warn"}>
+                      rejected {previewProfile.rejection_count}x
+                    </Badge>
+                  ) : null}
                 </div>
 
-                {previewProfile.status === "pending" ? (
-                  <div className="flex flex-wrap gap-2 border-t border-white/10 pt-4">
-                    <Btn tone="primary" onClick={() => updateStatusFromPreview("approved")}>
-                      Approve
-                    </Btn>
-                    <Btn tone="danger" onClick={() => updateStatusFromPreview("rejected")}>
-                      Reject
-                    </Btn>
+                {/* What changed since the last approved version */}
+                <div className="rounded-xl border border-white/10 p-3">
+                  <div className="mb-2 text-xs font-bold uppercase tracking-wide text-[#8f6b78]">
+                    {previewProfile.approved_snapshot
+                      ? "Changes since last approved"
+                      : "New submission — nothing approved yet"}
                   </div>
-                ) : null}
+
+                  <div className="grid gap-3">
+                    {SNAPSHOT_FIELDS.map((field) => {
+                      const current = String(
+                        (previewProfile as unknown as Record<string, unknown>)[field] ?? ""
+                      ).trim();
+                      const currentDisplay = current || "—";
+
+                      const snapshot = previewProfile.approved_snapshot;
+                      const before = snapshot
+                        ? String((snapshot as Record<string, unknown>)[field] ?? "").trim()
+                        : null;
+                      const beforeDisplay = before || "—";
+                      const changed = snapshot !== null && before !== current;
+
+                      return (
+                        <div key={field} className="grid grid-cols-[110px_1fr] gap-3 text-sm">
+                          <div className="text-[#8f6b78]">{SNAPSHOT_FIELD_LABELS[field]}</div>
+                          {changed ? (
+                            <div>
+                              <div className="text-[#8f6b78] line-through">{beforeDisplay}</div>
+                              <div className="font-semibold text-[#ff5f8f]">{currentDisplay}</div>
+                            </div>
+                          ) : (
+                            <div className="text-[#c9a7b3]">{currentDisplay}</div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-2 border-t border-white/10 pt-4">
+                  <Btn tone="primary" onClick={() => updateStatusFromPreview("approved")}>
+                    {previewProfile.status === "rejected" ? "Approve anyway" : "Approve"}
+                  </Btn>
+                  <Btn tone="danger" onClick={() => updateStatusFromPreview("rejected")}>
+                    Reject
+                  </Btn>
+                </div>
               </div>
             ) : null}
 

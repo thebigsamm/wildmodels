@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { resend } from "@/lib/resend";
 import { approvedEmail, rejectedEmail } from "@/lib/emails/profileStatus";
+import { buildSnapshot } from "@/lib/profileSnapshot";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -27,7 +28,9 @@ export async function POST(req: NextRequest) {
 
     const { data: profile, error: fetchErr } = await supabaseAdmin
       .from("profiles")
-      .select("id, user_id, username, display_name, status, first_approved_at, rejection_count")
+      .select(
+        "id, user_id, username, display_name, orientation, age, city, area, bio, whatsapp, telegram, status, first_approved_at, rejection_count"
+      )
       .eq("id", id)
       .maybeSingle();
 
@@ -48,6 +51,7 @@ export async function POST(req: NextRequest) {
       status: typeof status;
       first_approved_at?: string;
       rejection_count?: number;
+      approved_snapshot?: ReturnType<typeof buildSnapshot>;
     } = { status };
 
     if (status === "approved") {
@@ -55,6 +59,9 @@ export async function POST(req: NextRequest) {
       // A fresh approval clears past rejections - they've since produced an
       // acceptable profile, so a future edit shouldn't inherit an old count.
       update.rejection_count = 0;
+      // Capture what's live right now, so the next edit can be diffed
+      // against it in the admin Review modal.
+      update.approved_snapshot = buildSnapshot(profile);
     }
 
     let newRejectionCount = profile.rejection_count;
