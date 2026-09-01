@@ -67,7 +67,14 @@ export default async function DashboardPage() {
           </div>
         ) : (
           <div className="mt-8 rounded-2xl border border-[#ff115a]/25 bg-[#150109] p-5">
-            <h2 className="text-lg font-extrabold text-[#fbecef]">{profile.display_name}</h2>
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="text-lg font-extrabold text-[#fbecef]">{profile.display_name}</h2>
+              {profile.is_hidden_by_owner ? (
+                <span className="inline-flex items-center rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-0.5 text-xs font-bold text-amber-300">
+                  Hidden from public view
+                </span>
+              ) : null}
+            </div>
             <p className="mt-2 text-sm text-[#c9a7b3]">
               {profile.area}, {profile.city}
             </p>
