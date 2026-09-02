@@ -24,7 +24,7 @@ export async function POST(req: Request) {
   const { data: profile, error } = await supabaseAdmin
     .from("profiles")
     .select(
-      "id, username, display_name, gender, orientation, age, city, area, bio, photo_url, whatsapp, telegram, status, is_active, is_hidden_by_owner, deleted_at, created_at, rejection_count, approved_snapshot"
+      "id, username, display_name, gender, orientation, age, city, area, bio, photo_url, whatsapp, telegram, price_short_time, price_overnight, price_weekend, status, is_active, is_hidden_by_owner, deleted_at, created_at, rejection_count, approved_snapshot"
     )
     .eq("id", profileId)
     .maybeSingle();

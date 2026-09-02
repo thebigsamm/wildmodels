@@ -17,6 +17,9 @@ type Profile = {
   bio: string | null;
   whatsapp: string | null;
   telegram: string | null;
+  price_short_time: number | null;
+  price_overnight: number | null;
+  price_weekend: number | null;
   status: string;
   rejection_count: number;
 };
@@ -39,6 +42,9 @@ export default function EditProfilePage() {
   const [bio, setBio] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [telegram, setTelegram] = useState("");
+  const [priceShortTime, setPriceShortTime] = useState("");
+  const [priceOvernight, setPriceOvernight] = useState("");
+  const [priceWeekend, setPriceWeekend] = useState("");
 
   useEffect(() => {
     async function loadProfile() {
@@ -70,6 +76,9 @@ export default function EditProfilePage() {
       setBio(p.bio || "");
       setWhatsapp(p.whatsapp || "");
       setTelegram(p.telegram || "");
+      setPriceShortTime(p.price_short_time != null ? String(p.price_short_time) : "");
+      setPriceOvernight(p.price_overnight != null ? String(p.price_overnight) : "");
+      setPriceWeekend(p.price_weekend != null ? String(p.price_weekend) : "");
       setLoading(false);
     }
 
@@ -100,6 +109,9 @@ export default function EditProfilePage() {
         bio: bio.trim(),
         whatsapp: whatsapp.trim() || null,
         telegram: telegram.trim() || null,
+        price_short_time: priceShortTime.trim() ? Number(priceShortTime) : null,
+        price_overnight: priceOvernight.trim() ? Number(priceOvernight) : null,
+        price_weekend: priceWeekend.trim() ? Number(priceWeekend) : null,
       }),
     });
 
@@ -255,6 +267,45 @@ export default function EditProfilePage() {
               onChange={(e) => setTelegram(e.target.value)}
             />
           </label>
+
+          <div className="grid gap-1">
+            <span className="text-sm text-[#c9a7b3]">Pricing (₦)</span>
+            <div className="grid grid-cols-3 gap-3">
+              <label className="grid gap-1">
+                <span className="text-xs text-[#8f6b78]">Short-time</span>
+                <input
+                  className="rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef]"
+                  type="number"
+                  min={0}
+                  placeholder="e.g. 20000"
+                  value={priceShortTime}
+                  onChange={(e) => setPriceShortTime(e.target.value)}
+                />
+              </label>
+              <label className="grid gap-1">
+                <span className="text-xs text-[#8f6b78]">Overnight</span>
+                <input
+                  className="rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef]"
+                  type="number"
+                  min={0}
+                  placeholder="e.g. 50000"
+                  value={priceOvernight}
+                  onChange={(e) => setPriceOvernight(e.target.value)}
+                />
+              </label>
+              <label className="grid gap-1">
+                <span className="text-xs text-[#8f6b78]">Weekend</span>
+                <input
+                  className="rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef]"
+                  type="number"
+                  min={0}
+                  placeholder="e.g. 100000"
+                  value={priceWeekend}
+                  onChange={(e) => setPriceWeekend(e.target.value)}
+                />
+              </label>
+            </div>
+          </div>
 
           <button
             onClick={saveProfile}

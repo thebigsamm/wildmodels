@@ -20,6 +20,9 @@ type Profile = {
   photo_url: string | null;
   whatsapp: string | null;
   telegram: string | null;
+  price_short_time: number | null;
+  price_overnight: number | null;
+  price_weekend: number | null;
 };
 
 function maskPhone(s: string) {
@@ -53,7 +56,7 @@ export default function ProfilePage() {
       const { data, error } = await supabase
         .from("profiles")
         .select(
-          "id, display_name, gender, orientation, age, city, area, bio, photo_url, whatsapp, telegram"
+          "id, display_name, gender, orientation, age, city, area, bio, photo_url, whatsapp, telegram, price_short_time, price_overnight, price_weekend"
         )
         .eq("username", username)
         .eq("status", "approved")
@@ -149,6 +152,32 @@ export default function ProfilePage() {
           </p>
 
           {p.bio ? <p className="mt-5 text-[#e8d1d8] leading-relaxed">{p.bio}</p> : null}
+
+          {(p.price_short_time || p.price_overnight || p.price_weekend) ? (
+            <div className="mt-5 rounded-2xl border border-[#c400ff]/30 bg-[#150109] p-5">
+              <div className="font-extrabold text-sm uppercase tracking-wide text-[#c400ff] mb-3">Pricing</div>
+              <div className="grid grid-cols-3 gap-3">
+                {p.price_short_time ? (
+                  <div>
+                    <div className="text-xs text-[#8f6b78]">Short-time</div>
+                    <div className="text-lg font-bold text-[#fbecef]">₦{p.price_short_time.toLocaleString()}</div>
+                  </div>
+                ) : null}
+                {p.price_overnight ? (
+                  <div>
+                    <div className="text-xs text-[#8f6b78]">Overnight</div>
+                    <div className="text-lg font-bold text-[#fbecef]">₦{p.price_overnight.toLocaleString()}</div>
+                  </div>
+                ) : null}
+                {p.price_weekend ? (
+                  <div>
+                    <div className="text-xs text-[#8f6b78]">Weekend</div>
+                    <div className="text-lg font-bold text-[#fbecef]">₦{p.price_weekend.toLocaleString()}</div>
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          ) : null}
 
           <div className="mt-6 rounded-2xl border border-[#ff115a]/30 bg-[#150109] p-5">
             <div className="font-extrabold text-sm uppercase tracking-wide text-[#ff5f8f] mb-3">Contacts</div>
