@@ -70,22 +70,6 @@ export async function POST(req: NextRequest) {
     const bio = String(form.get("bio") ?? "").trim();
     const whatsapp = String(form.get("whatsapp") ?? "").trim() || null;
     const telegram = String(form.get("telegram") ?? "").trim() || null;
-    const priceShortTimeRaw = form.get("price_short_time");
-    const priceOvernightRaw = form.get("price_overnight");
-    const priceWeekendRaw = form.get("price_weekend");
-    const price_short_time = priceShortTimeRaw ? Number(priceShortTimeRaw) : null;
-    const price_overnight = priceOvernightRaw ? Number(priceOvernightRaw) : null;
-    const price_weekend = priceWeekendRaw ? Number(priceWeekendRaw) : null;
-
-    if (price_short_time !== null && (!Number.isFinite(price_short_time) || price_short_time < 0)) {
-      return NextResponse.json({ error: "Invalid short-time price." }, { status: 400 });
-    }
-    if (price_overnight !== null && (!Number.isFinite(price_overnight) || price_overnight < 0)) {
-      return NextResponse.json({ error: "Invalid overnight price." }, { status: 400 });
-    }
-    if (price_weekend !== null && (!Number.isFinite(price_weekend) || price_weekend < 0)) {
-      return NextResponse.json({ error: "Invalid weekend price." }, { status: 400 });
-    }
 
     if (!isAllowedNgState(city)) {
       return NextResponse.json(
@@ -190,9 +174,6 @@ export async function POST(req: NextRequest) {
           bio,
           whatsapp,
           telegram,
-          price_short_time,
-          price_overnight,
-          price_weekend,
           is_active: true,
           status: "pending",
         },

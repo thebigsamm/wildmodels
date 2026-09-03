@@ -7,9 +7,6 @@ export type ProfileSnapshot = {
   bio: string | null;
   whatsapp: string | null;
   telegram: string | null;
-  price_short_time: number | null;
-  price_overnight: number | null;
-  price_weekend: number | null;
 };
 
 export const SNAPSHOT_FIELDS: (keyof ProfileSnapshot)[] = [
@@ -21,9 +18,6 @@ export const SNAPSHOT_FIELDS: (keyof ProfileSnapshot)[] = [
   "bio",
   "whatsapp",
   "telegram",
-  "price_short_time",
-  "price_overnight",
-  "price_weekend",
 ];
 
 export const SNAPSHOT_FIELD_LABELS: Record<keyof ProfileSnapshot, string> = {
@@ -35,9 +29,6 @@ export const SNAPSHOT_FIELD_LABELS: Record<keyof ProfileSnapshot, string> = {
   bio: "Bio",
   whatsapp: "WhatsApp",
   telegram: "Telegram",
-  price_short_time: "Short-time price",
-  price_overnight: "Overnight price",
-  price_weekend: "Weekend price",
 };
 
 export function buildSnapshot(profile: Record<string, unknown>): ProfileSnapshot {

@@ -31,19 +31,6 @@ export async function POST(req: NextRequest) {
     const bio = String(body.bio ?? "").trim();
     const whatsapp = String(body.whatsapp ?? "").trim() || null;
     const telegram = String(body.telegram ?? "").trim() || null;
-    const price_short_time = body.price_short_time != null ? Number(body.price_short_time) : null;
-    const price_overnight = body.price_overnight != null ? Number(body.price_overnight) : null;
-    const price_weekend = body.price_weekend != null ? Number(body.price_weekend) : null;
-
-    if (price_short_time !== null && (!Number.isFinite(price_short_time) || price_short_time < 0)) {
-      return NextResponse.json({ error: "Invalid short-time price." }, { status: 400 });
-    }
-    if (price_overnight !== null && (!Number.isFinite(price_overnight) || price_overnight < 0)) {
-      return NextResponse.json({ error: "Invalid overnight price." }, { status: 400 });
-    }
-    if (price_weekend !== null && (!Number.isFinite(price_weekend) || price_weekend < 0)) {
-      return NextResponse.json({ error: "Invalid weekend price." }, { status: 400 });
-    }
 
     if (!isAllowedNgState(city)) {
       return NextResponse.json({ error: "Invalid state selected." }, { status: 400 });
@@ -101,9 +88,6 @@ export async function POST(req: NextRequest) {
         bio,
         whatsapp,
         telegram,
-        price_short_time,
-        price_overnight,
-        price_weekend,
         status: "pending",
       })
       .eq("id", profile.id);

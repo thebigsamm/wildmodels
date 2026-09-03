@@ -26,9 +26,6 @@ export default function CreateProfilePage() {
   const [bio, setBio] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [telegram, setTelegram] = useState("");
-  const [priceShortTime, setPriceShortTime] = useState("");
-  const [priceOvernight, setPriceOvernight] = useState("");
-  const [priceWeekend, setPriceWeekend] = useState("");
   const [photoFiles, setPhotoFiles] = useState<File[]>([]);
 
   useEffect(() => {
@@ -86,9 +83,6 @@ export default function CreateProfilePage() {
     fd.append("bio", bio.trim());
     if (whatsapp.trim()) fd.append("whatsapp", whatsapp.trim());
     if (telegram.trim()) fd.append("telegram", telegram.trim());
-    if (priceShortTime.trim()) fd.append("price_short_time", priceShortTime.trim());
-    if (priceOvernight.trim()) fd.append("price_overnight", priceOvernight.trim());
-    if (priceWeekend.trim()) fd.append("price_weekend", priceWeekend.trim());
 
     for (const f of photoFiles) {
       fd.append("photos", f);
@@ -118,9 +112,6 @@ export default function CreateProfilePage() {
     setBio("");
     setWhatsapp("");
     setTelegram("");
-    setPriceShortTime("");
-    setPriceOvernight("");
-    setPriceWeekend("");
     setPhotoFiles([]);
   }
 
@@ -316,45 +307,6 @@ export default function CreateProfilePage() {
               onChange={(e) => setTelegram(e.target.value)}
             />
           </label>
-
-          <div className="grid gap-1">
-            <span className={labelClass}>Pricing (₦)</span>
-            <div className="grid grid-cols-3 gap-3">
-              <label className="grid gap-1">
-                <span className="text-xs text-[#8f6b78]">Short-time</span>
-                <input
-                  className={inputClass}
-                  type="number"
-                  min={0}
-                  placeholder="e.g. 20000"
-                  value={priceShortTime}
-                  onChange={(e) => setPriceShortTime(e.target.value)}
-                />
-              </label>
-              <label className="grid gap-1">
-                <span className="text-xs text-[#8f6b78]">Overnight</span>
-                <input
-                  className={inputClass}
-                  type="number"
-                  min={0}
-                  placeholder="e.g. 50000"
-                  value={priceOvernight}
-                  onChange={(e) => setPriceOvernight(e.target.value)}
-                />
-              </label>
-              <label className="grid gap-1">
-                <span className="text-xs text-[#8f6b78]">Weekend</span>
-                <input
-                  className={inputClass}
-                  type="number"
-                  min={0}
-                  placeholder="e.g. 100000"
-                  value={priceWeekend}
-                  onChange={(e) => setPriceWeekend(e.target.value)}
-                />
-              </label>
-            </div>
-          </div>
 
           <button
             className="rounded-full bg-gradient-to-r from-[#ff115a] to-[#c400ff] p-2.5 font-bold text-[#060002] shadow-[0_0_20px_rgba(255,17,90,0.4)] hover:opacity-90 disabled:opacity-50"
