@@ -64,6 +64,7 @@ type PreviewProfile = {
   photo_url: string | null;
   whatsapp: string | null;
   telegram: string | null;
+  interests: string[] | null;
   status: "pending" | "approved" | "rejected";
   is_active: boolean;
   is_hidden_by_owner: boolean;

@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { createProfileRatelimit } from "@/lib/ratelimit";
 import { isAllowedNgState } from "@/lib/ngStates";
 import { createRouteHandlerClient } from "@/lib/supabase/server-action";
+import { isValidInterestList } from "@/lib/interests";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -70,6 +71,17 @@ export async function POST(req: NextRequest) {
     const bio = String(form.get("bio") ?? "").trim();
     const whatsapp = String(form.get("whatsapp") ?? "").trim() || null;
     const telegram = String(form.get("telegram") ?? "").trim() || null;
+
+    let interests: string[] = [];
+    try {
+      interests = JSON.parse(String(form.get("interests") ?? "[]"));
+    } catch {
+      return NextResponse.json({ error: "Invalid interests." }, { status: 400 });
+    }
+
+    if (!isValidInterestList(interests)) {
+      return NextResponse.json({ error: "Invalid interests." }, { status: 400 });
+    }
 
     if (!isAllowedNgState(city)) {
       return NextResponse.json(
@@ -174,6 +186,7 @@ export async function POST(req: NextRequest) {
           bio,
           whatsapp,
           telegram,
+          interests,
           is_active: true,
           status: "pending",
         },

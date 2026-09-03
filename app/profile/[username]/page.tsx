@@ -20,6 +20,7 @@ type Profile = {
   photo_url: string | null;
   whatsapp: string | null;
   telegram: string | null;
+  interests: string[] | null;
 };
 
 function maskPhone(s: string) {
@@ -53,7 +54,7 @@ export default function ProfilePage() {
       const { data, error } = await supabase
         .from("profiles")
         .select(
-          "id, display_name, gender, orientation, age, city, area, bio, photo_url, whatsapp, telegram"
+          "id, display_name, gender, orientation, age, city, area, bio, photo_url, whatsapp, telegram, interests"
         )
         .eq("username", username)
         .eq("status", "approved")
@@ -123,21 +124,36 @@ export default function ProfilePage() {
       </Link>
 
       <div className="mt-4 grid gap-6 lg:grid-cols-2">
-        <div className="grid grid-cols-2 gap-2">
-          {photos.length ? (
-            photos.map((u) => (
-              <div key={u} className="rounded-2xl overflow-hidden bg-[#150109] aspect-[4/3]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={u} alt="photo" className="h-full w-full object-cover" />
+        <div className="grid gap-4">
+          <div className="grid grid-cols-2 gap-2">
+            {photos.length ? (
+              photos.map((u) => (
+                <div key={u} className="rounded-2xl overflow-hidden bg-[#150109] aspect-[4/3]">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={u} alt="photo" className="h-full w-full object-cover" />
+                </div>
+              ))
+            ) : (
+              <div className="col-span-2 rounded-2xl overflow-hidden bg-gradient-to-br from-[#ff115a] via-[#c400ff] to-[#3a0059] aspect-[4/3] grid place-items-center">
+                <span className="font-[family-name:var(--font-display)] text-8xl text-black/30">
+                  {p.display_name?.[0]?.toUpperCase() ?? "?"}
+                </span>
               </div>
-            ))
-          ) : (
-            <div className="col-span-2 rounded-2xl overflow-hidden bg-gradient-to-br from-[#ff115a] via-[#c400ff] to-[#3a0059] aspect-[4/3] grid place-items-center">
-              <span className="font-[family-name:var(--font-display)] text-8xl text-black/30">
-                {p.display_name?.[0]?.toUpperCase() ?? "?"}
-              </span>
+            )}
+          </div>
+
+          {p.interests && p.interests.length ? (
+            <div className="flex flex-wrap gap-2">
+              {p.interests.map((interest) => (
+                <span
+                  key={interest}
+                  className="rounded-full border border-white/10 bg-[#150109] px-3 py-1.5 text-sm text-[#e8d1d8]"
+                >
+                  {interest}
+                </span>
+              ))}
             </div>
-          )}
+          ) : null}
         </div>
 
         <div>

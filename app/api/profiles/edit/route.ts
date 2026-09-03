@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { isAllowedNgState } from "@/lib/ngStates";
 import { createRouteHandlerClient } from "@/lib/supabase/server-action";
 import { isLockedOut } from "@/lib/profileStatus";
+import { isValidInterestList } from "@/lib/interests";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -31,6 +32,11 @@ export async function POST(req: NextRequest) {
     const bio = String(body.bio ?? "").trim();
     const whatsapp = String(body.whatsapp ?? "").trim() || null;
     const telegram = String(body.telegram ?? "").trim() || null;
+    const interests = body.interests;
+
+    if (!isValidInterestList(interests)) {
+      return NextResponse.json({ error: "Invalid interests." }, { status: 400 });
+    }
 
     if (!isAllowedNgState(city)) {
       return NextResponse.json({ error: "Invalid state selected." }, { status: 400 });
@@ -88,6 +94,7 @@ export async function POST(req: NextRequest) {
         bio,
         whatsapp,
         telegram,
+        interests,
         status: "pending",
       })
       .eq("id", profile.id);

@@ -7,6 +7,7 @@ export type ProfileSnapshot = {
   bio: string | null;
   whatsapp: string | null;
   telegram: string | null;
+  interests: string[];
 };
 
 export const SNAPSHOT_FIELDS: (keyof ProfileSnapshot)[] = [
@@ -18,6 +19,7 @@ export const SNAPSHOT_FIELDS: (keyof ProfileSnapshot)[] = [
   "bio",
   "whatsapp",
   "telegram",
+  "interests",
 ];
 
 export const SNAPSHOT_FIELD_LABELS: Record<keyof ProfileSnapshot, string> = {
@@ -29,6 +31,7 @@ export const SNAPSHOT_FIELD_LABELS: Record<keyof ProfileSnapshot, string> = {
   bio: "Bio",
   whatsapp: "WhatsApp",
   telegram: "Telegram",
+  interests: "Interests",
 };
 
 export function buildSnapshot(profile: Record<string, unknown>): ProfileSnapshot {

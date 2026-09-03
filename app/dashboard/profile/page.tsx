@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { NG_TOP_STATES, type NgTopState } from "@/lib/ngStates";
 import { SiteHeader } from "@/components/SiteHeader";
 import { isLockedOut } from "@/lib/profileStatus";
+import { InterestPicker } from "@/components/InterestPicker";
 
 type Profile = {
   id: string;
@@ -17,6 +18,7 @@ type Profile = {
   bio: string | null;
   whatsapp: string | null;
   telegram: string | null;
+  interests: string[] | null;
   status: string;
   rejection_count: number;
 };
@@ -39,6 +41,7 @@ export default function EditProfilePage() {
   const [bio, setBio] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [telegram, setTelegram] = useState("");
+  const [interests, setInterests] = useState<string[]>([]);
 
   useEffect(() => {
     async function loadProfile() {
@@ -70,6 +73,7 @@ export default function EditProfilePage() {
       setBio(p.bio || "");
       setWhatsapp(p.whatsapp || "");
       setTelegram(p.telegram || "");
+      setInterests(p.interests || []);
       setLoading(false);
     }
 
@@ -100,6 +104,7 @@ export default function EditProfilePage() {
         bio: bio.trim(),
         whatsapp: whatsapp.trim() || null,
         telegram: telegram.trim() || null,
+        interests,
       }),
     });
 
@@ -237,6 +242,11 @@ export default function EditProfilePage() {
               onChange={(e) => setBio(e.target.value)}
             />
           </label>
+
+          <div className="grid gap-1">
+            <span className="text-sm text-[#c9a7b3]">Interests</span>
+            <InterestPicker selected={interests} onChange={setInterests} />
+          </div>
 
           <label className="grid gap-1">
             <span className="text-sm text-[#c9a7b3]">WhatsApp</span>

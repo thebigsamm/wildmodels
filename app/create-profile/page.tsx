@@ -7,6 +7,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { Suspense } from "react";
 import { NG_TOP_STATES, type NgTopState } from "@/lib/ngStates";
 import { createClient } from "@/lib/supabase/client";
+import { InterestPicker } from "@/components/InterestPicker";
 
 export default function CreateProfilePage() {
   const router = useRouter();
@@ -26,6 +27,7 @@ export default function CreateProfilePage() {
   const [bio, setBio] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [telegram, setTelegram] = useState("");
+  const [interests, setInterests] = useState<string[]>([]);
   const [photoFiles, setPhotoFiles] = useState<File[]>([]);
 
   useEffect(() => {
@@ -83,6 +85,7 @@ export default function CreateProfilePage() {
     fd.append("bio", bio.trim());
     if (whatsapp.trim()) fd.append("whatsapp", whatsapp.trim());
     if (telegram.trim()) fd.append("telegram", telegram.trim());
+    fd.append("interests", JSON.stringify(interests));
 
     for (const f of photoFiles) {
       fd.append("photos", f);
@@ -112,6 +115,7 @@ export default function CreateProfilePage() {
     setBio("");
     setWhatsapp("");
     setTelegram("");
+    setInterests([]);
     setPhotoFiles([]);
   }
 
@@ -275,6 +279,11 @@ export default function CreateProfilePage() {
               onChange={(e) => setBio(e.target.value)}
             />
           </label>
+
+          <div className="grid gap-1">
+            <span className={labelClass}>Interests</span>
+            <InterestPicker selected={interests} onChange={setInterests} />
+          </div>
 
           <label className="grid gap-1">
             <span className={labelClass}>Main photo (upload)</span>

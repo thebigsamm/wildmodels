@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     const { data: profile, error: fetchErr } = await supabaseAdmin
       .from("profiles")
       .select(
-        "id, user_id, username, display_name, orientation, age, city, area, bio, whatsapp, telegram, status, first_approved_at, rejection_count"
+        "id, user_id, username, display_name, orientation, age, city, area, bio, whatsapp, telegram, interests, status, first_approved_at, rejection_count"
       )
       .eq("id", id)
       .maybeSingle();
