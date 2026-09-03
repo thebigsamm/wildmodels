@@ -124,7 +124,7 @@ export default function ProfilePage() {
       </Link>
 
       <div className="mt-4 grid gap-6 lg:grid-cols-2">
-        <div className="grid gap-4">
+        <div className="grid gap-4 self-start">
           <div className="grid grid-cols-2 gap-2">
             {photos.length ? (
               photos.map((u) => (
