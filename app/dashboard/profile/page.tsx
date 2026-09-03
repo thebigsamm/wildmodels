@@ -6,7 +6,6 @@ import { createClient } from "@/lib/supabase/client";
 import { NG_TOP_STATES, type NgTopState } from "@/lib/ngStates";
 import { SiteHeader } from "@/components/SiteHeader";
 import { isLockedOut } from "@/lib/profileStatus";
-import { InterestPicker } from "@/components/InterestPicker";
 
 type Profile = {
   id: string;
@@ -147,12 +146,20 @@ export default function EditProfilePage() {
           <h1 className="font-[family-name:var(--font-display)] text-3xl uppercase text-[#fbecef]">
             Edit Profile
           </h1>
-          <a
-            href="/dashboard/photos"
-            className="rounded-full border border-white/20 px-4 py-2 text-sm font-bold text-[#fbecef] hover:bg-white/5"
-          >
-            Manage photos
-          </a>
+          <div className="flex flex-wrap gap-2">
+            <a
+              href="/dashboard/photos"
+              className="rounded-full border border-white/20 px-4 py-2 text-sm font-bold text-[#fbecef] hover:bg-white/5"
+            >
+              Manage photos
+            </a>
+            <a
+              href="/dashboard/interests"
+              className="rounded-full border border-white/20 px-4 py-2 text-sm font-bold text-[#fbecef] hover:bg-white/5"
+            >
+              Manage interests
+            </a>
+          </div>
         </div>
 
         {lockedOut ? (
@@ -242,11 +249,6 @@ export default function EditProfilePage() {
               onChange={(e) => setBio(e.target.value)}
             />
           </label>
-
-          <div className="grid gap-1">
-            <span className="text-sm text-[#c9a7b3]">Interests</span>
-            <InterestPicker selected={interests} onChange={setInterests} />
-          </div>
 
           <label className="grid gap-1">
             <span className="text-sm text-[#c9a7b3]">WhatsApp</span>
