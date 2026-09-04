@@ -9,7 +9,6 @@ import { Suspense } from "react";
 import { NG_TOP_STATES } from "@/lib/ngStates";
 
 type Profile = {
-  id: string;
   username: string;
   display_name: string;
   gender: "female" | "male";
@@ -196,8 +195,11 @@ export default function Page() {
       // live profiles; these filters keep the query explicit either way.
       let query = supabase
         .from("profiles")
+        // id is deliberately NOT selected — nothing here needs it, so it never
+        // reaches the browser. It's still used as a sort tiebreaker below,
+        // which happens server-side.
         .select(
-          "id, username, display_name, gender, orientation, age, city, area, bio, photo_url",
+          "username, display_name, gender, orientation, age, city, area, bio, photo_url",
           { count: "exact" }
         )
         .eq("status", "approved")
@@ -216,6 +218,10 @@ export default function Page() {
 
       return query
         .order("created_at", { ascending: false })
+        // Tiebreaker: created_at alone isn't unique (two profiles approved in
+        // the same instant), and Postgres doesn't guarantee a stable order
+        // under ties — which can duplicate or skip rows across page boundaries.
+        .order("id", { ascending: false })
         .range(offset, offset + PAGE_SIZE - 1);
     },
     [applied]
@@ -464,7 +470,7 @@ export default function Page() {
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {profiles.map((p, i) => (
             <Link
-              key={p.id}
+              key={p.username}
               href={`/profile/${p.username}`}
               className="group overflow-hidden rounded-2xl border border-[#ff115a]/25 bg-[#150109] shadow-[0_16px_34px_-18px_rgba(255,17,90,0.4)] transition hover:border-[#ff115a]/50"
             >
