@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { createClient } from "@/lib/supabase/client";
@@ -147,9 +147,19 @@ function parseAiQuery(input: string) {
   return { gender, orientation, city, area, minAge, maxAge };
 }
 
+const PAGE_SIZE = 24;
+
+/** Escape LIKE wildcards so a typed "%" searches for a literal "%". */
+function escapeLike(input: string) {
+  return input.replace(/[%_\\]/g, (m) => `\\${m}`);
+}
+
 export default function Page() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [total, setTotal] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [hasProfile, setHasProfile] = useState(false);
 
@@ -162,31 +172,103 @@ export default function Page() {
   const [minAge, setMinAge] = useState<number | "">("");
   const [maxAge, setMaxAge] = useState<number | "">("");
 
+  // Debounced copy of the filters — typing in Area or the age boxes shouldn't
+  // fire a query per keystroke.
+  const [applied, setApplied] = useState({
+    gender: "all" as string,
+    orientation: "all" as string,
+    city: "all" as string,
+    area: "",
+    minAge: "" as number | "",
+    maxAge: "" as number | "",
+  });
+
   useEffect(() => {
+    const t = setTimeout(() => {
+      setApplied({ gender, orientation, city, area, minAge, maxAge });
+    }, 300);
+    return () => clearTimeout(t);
+  }, [gender, orientation, city, area, minAge, maxAge]);
+
+  const fetchPage = useCallback(
+    (offset: number) => {
+      // RLS also restricts this to approved+active, so guests only ever see
+      // live profiles; these filters keep the query explicit either way.
+      let query = supabase
+        .from("profiles")
+        .select(
+          "id, username, display_name, gender, orientation, age, city, area, bio, photo_url",
+          { count: "exact" }
+        )
+        .eq("status", "approved")
+        .eq("is_active", true)
+        .eq("is_hidden_by_owner", false)
+        .is("deleted_at", null);
+
+      if (applied.gender !== "all") query = query.eq("gender", applied.gender);
+      if (applied.orientation !== "all") query = query.eq("orientation", applied.orientation);
+      if (applied.city !== "all") query = query.eq("city", applied.city);
+      if (applied.area.trim()) {
+        query = query.ilike("area", `%${escapeLike(applied.area.trim())}%`);
+      }
+      if (applied.minAge !== "") query = query.gte("age", Number(applied.minAge));
+      if (applied.maxAge !== "") query = query.lte("age", Number(applied.maxAge));
+
+      return query
+        .order("created_at", { ascending: false })
+        .range(offset, offset + PAGE_SIZE - 1);
+    },
+    [applied]
+  );
+
+  // Reset to page one whenever the applied filters change.
+  useEffect(() => {
+    let cancelled = false;
+
     (async () => {
       setLoading(true);
       setErrorMsg(null);
 
-      // Since RLS only shows approved+active, guests will only see live profiles
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("id, username, display_name, gender, orientation, age, city, area, bio, photo_url")
-        .eq("status", "approved")
-        .eq("is_active", true)
-        .eq("is_hidden_by_owner", false)
-        .is("deleted_at", null)
-        .order("created_at", { ascending: false });
+      const { data, error, count } = await fetchPage(0);
+      if (cancelled) return;
 
       if (error) {
         setErrorMsg(error.message);
         setProfiles([]);
+        setTotal(0);
+        setHasMore(false);
       } else {
-        setProfiles((data ?? []) as Profile[]);
+        const rows = (data ?? []) as Profile[];
+        setProfiles(rows);
+        setTotal(count ?? rows.length);
+        setHasMore(rows.length < (count ?? rows.length));
       }
 
       setLoading(false);
     })();
-  }, []);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [fetchPage]);
+
+  async function loadMore() {
+    setLoadingMore(true);
+
+    const { data, error, count } = await fetchPage(profiles.length);
+
+    if (error) {
+      setErrorMsg(error.message);
+    } else {
+      const rows = (data ?? []) as Profile[];
+      const next = [...profiles, ...rows];
+      setProfiles(next);
+      setTotal(count ?? next.length);
+      setHasMore(next.length < (count ?? next.length));
+    }
+
+    setLoadingMore(false);
+  }
 
   useEffect(() => {
     (async () => {
@@ -207,26 +289,6 @@ export default function Page() {
 
   // Build city dropdown from your launch cities + whatever exists in DB
   const cityOptions = ["all", ...NG_TOP_STATES] as const;
-
-  const filtered = useMemo(() => {
-    const min = minAge === "" ? null : Number(minAge);
-    const max = maxAge === "" ? null : Number(maxAge);
-
-    return profiles.filter((p) => {
-      if (gender !== "all" && p.gender !== gender) return false;
-      if (orientation !== "all" && p.orientation !== orientation) return false;
-      if (city !== "all" && p.city !== city) return false;
-
-      if (area.trim()) {
-        if (!p.area?.toLowerCase().includes(area.trim().toLowerCase())) return false;
-      }
-
-      if (min !== null && p.age < min) return false;
-      if (max !== null && p.age > max) return false;
-
-      return true;
-    });
-  }, [profiles, gender, orientation, city, area, minAge, maxAge]);
 
   function applyAi() {
     const parsed = parseAiQuery(ai);
@@ -384,7 +446,8 @@ export default function Page() {
         </div>
 
         <div className="rounded-lg border border-white/10 bg-[#220413] p-2 text-sm text-[#c9a7b3]">
-          Showing <span className="font-bold text-[#ff5f8f]">{filtered.length}</span> profiles
+          Showing <span className="font-bold text-[#ff5f8f]">{profiles.length}</span> of{" "}
+          <span className="font-bold text-[#ff5f8f]">{total}</span> profiles
         </div>
       </div>
 
@@ -399,7 +462,7 @@ export default function Page() {
 
       {!loading && !errorMsg ? (
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filtered.map((p, i) => (
+          {profiles.map((p, i) => (
             <Link
               key={p.id}
               href={`/profile/${p.username}`}
@@ -448,6 +511,27 @@ export default function Page() {
               </div>
             </Link>
           ))}
+        </div>
+      ) : null}
+
+      {!loading && !errorMsg && profiles.length === 0 ? (
+        <div className="mt-8 rounded-2xl border border-white/10 bg-[#150109] p-6 text-center">
+          <div className="font-bold text-[#fbecef]">No profiles match those filters</div>
+          <div className="mt-1 text-sm text-[#c9a7b3]">
+            Try widening your search — fewer filters, or a different state.
+          </div>
+        </div>
+      ) : null}
+
+      {!loading && !errorMsg && hasMore ? (
+        <div className="mt-8 flex justify-center">
+          <button
+            onClick={loadMore}
+            disabled={loadingMore}
+            className="rounded-full border border-[#ff115a]/40 px-6 py-3 text-sm font-bold text-[#ff5f8f] hover:bg-[#ff115a]/10 disabled:opacity-50"
+          >
+            {loadingMore ? "Loading…" : "Load more"}
+          </button>
         </div>
       ) : null}
       </div>
