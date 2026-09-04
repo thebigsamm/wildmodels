@@ -48,12 +48,20 @@ export default async function DashboardPage() {
           <h1 className="font-[family-name:var(--font-display)] text-3xl uppercase text-[#fbecef]">
             Dashboard
           </h1>
-          <a
-            href="/dashboard/settings"
-            className="rounded-full border border-white/20 px-4 py-2 text-sm font-bold text-[#fbecef] hover:bg-white/5"
-          >
-            Account settings
-          </a>
+          <div className="flex flex-wrap gap-2">
+            <a
+              href="/dashboard/blocked"
+              className="rounded-full border border-white/20 px-4 py-2 text-sm font-bold text-[#fbecef] hover:bg-white/5"
+            >
+              Blocked users
+            </a>
+            <a
+              href="/dashboard/settings"
+              className="rounded-full border border-white/20 px-4 py-2 text-sm font-bold text-[#fbecef] hover:bg-white/5"
+            >
+              Account settings
+            </a>
+          </div>
         </div>
         <p className="mt-2 text-sm text-[#c9a7b3]">Logged in as: {user.email}</p>
 

@@ -40,6 +40,11 @@ export default function ProfilePage() {
   const [reportDetails, setReportDetails] = useState("");
   const [reportMsg, setReportMsg] = useState<string | null>(null);
 
+  const [viewerUsername, setViewerUsername] = useState<string | null>(null);
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [blocking, setBlocking] = useState(false);
+  const [blockMsg, setBlockMsg] = useState<string | null>(null);
+
   const params = useParams<{ username: string }>();
   const username = params?.username;
 
@@ -80,6 +85,45 @@ export default function ProfilePage() {
       setLoading(false);
     })();
   }, [username]);
+
+  useEffect(() => {
+    (async () => {
+      const res = await fetch("/api/account/profile");
+      if (!res.ok) return;
+      const data = await res.json();
+      setLoggedIn(true);
+      if (data.profile?.username) setViewerUsername(data.profile.username);
+    })();
+  }, []);
+
+  async function blockUser() {
+    if (!username) return;
+
+    const ok = confirm(
+      "Block this person? You won't see each other anywhere on WildModels. You can undo this from your dashboard."
+    );
+    if (!ok) return;
+
+    setBlocking(true);
+    setBlockMsg(null);
+
+    const res = await fetch("/api/blocks/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username }),
+    });
+
+    const data = await res.json();
+    setBlocking(false);
+
+    if (!res.ok) {
+      setBlockMsg(data.error || "Couldn't block this person.");
+      return;
+    }
+
+    // The profile is invisible to them now, so there's nothing left to show.
+    window.location.href = "/browse";
+  }
 
   async function submitReport() {
     if (!p) return;
@@ -223,6 +267,23 @@ export default function ProfilePage() {
               Click the number or username to open a direct chat.
             </p>
           </div>
+
+          {loggedIn && viewerUsername !== username ? (
+            <div className="mt-6 rounded-2xl border border-white/10 bg-transparent p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <div className="font-bold text-[#e8d1d8]">Block</div>
+                  <p className="mt-1 text-xs text-[#8f6b78]">
+                    You won&rsquo;t see each other anywhere on WildModels.
+                  </p>
+                </div>
+                <Button variant="outline" onClick={blockUser} disabled={blocking}>
+                  {blocking ? "Blocking..." : "Block"}
+                </Button>
+              </div>
+              {blockMsg ? <div className="mt-3 text-sm text-[#ff5f8f]">{blockMsg}</div> : null}
+            </div>
+          ) : null}
 
           <div className="mt-6 rounded-2xl border border-white/10 bg-transparent p-4">
             <div className="flex items-center justify-between">

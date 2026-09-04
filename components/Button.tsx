@@ -23,12 +23,14 @@ export function Button({
   children,
   variant = "outline",
   className = "",
+  disabled = false,
 }: {
   href?: string;
   onClick?: () => void;
   children: React.ReactNode;
   variant?: Variant;
   className?: string;
+  disabled?: boolean;
 }) {
   const classes = `${base} ${variants[variant]} ${className}`;
 
@@ -41,7 +43,7 @@ export function Button({
   }
 
   return (
-    <button className={classes} onClick={onClick}>
+    <button className={classes} onClick={onClick} disabled={disabled}>
       {children}
     </button>
   );
