@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/client";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Button } from "@/components/Button";
 import { useParams } from "next/navigation";
@@ -30,6 +30,10 @@ function maskPhone(s: string) {
 }
 
 export default function ProfilePage() {
+  // Session-aware client — the plain supabase-js client queries anonymously,
+  // which would bypass the block visibility policy entirely.
+  const supabase = useMemo(() => createClient(), []);
+
   const [p, setP] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [showContact, setShowContact] = useState(false);
@@ -84,7 +88,7 @@ export default function ProfilePage() {
       setPhotos((ph ?? []).map((x: any) => x.url));
       setLoading(false);
     })();
-  }, [username]);
+  }, [username, supabase]);
 
   useEffect(() => {
     (async () => {

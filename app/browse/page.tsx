@@ -1,8 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
 import { createClient } from "@/lib/supabase/client";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Suspense } from "react";
@@ -154,6 +153,11 @@ function escapeLike(input: string) {
 }
 
 export default function Page() {
+  // Session-aware client. The plain supabase-js client doesn't read the auth
+  // cookies, so its queries run anonymously — which silently defeats any RLS
+  // policy that depends on auth.uid(), like block visibility.
+  const supabase = useMemo(() => createClient(), []);
+
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [total, setTotal] = useState(0);
   const [hasMore, setHasMore] = useState(false);
@@ -224,7 +228,7 @@ export default function Page() {
         .order("id", { ascending: false })
         .range(offset, offset + PAGE_SIZE - 1);
     },
-    [applied]
+    [applied, supabase]
   );
 
   // Reset to page one whenever the applied filters change.
@@ -278,10 +282,9 @@ export default function Page() {
 
   useEffect(() => {
     (async () => {
-      const authClient = createClient();
       const {
         data: { user },
-      } = await authClient.auth.getUser();
+      } = await supabase.auth.getUser();
 
       if (!user) return;
 
@@ -291,7 +294,7 @@ export default function Page() {
         if (data.profile) setHasProfile(true);
       }
     })();
-  }, []);
+  }, [supabase]);
 
   // Build city dropdown from your launch cities + whatever exists in DB
   const cityOptions = ["all", ...NG_TOP_STATES] as const;
