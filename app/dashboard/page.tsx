@@ -20,7 +20,7 @@ export default async function DashboardPage() {
   const { data: profile } = await supabase
     .from("profiles")
     .select(
-      "id, username, display_name, city, area, status, is_active, is_hidden_by_owner, rejection_count"
+      "id, username, display_name, city, area, status, is_active, is_hidden_by_owner, rejection_count, is_verified"
     )
     .eq("user_id", user.id)
     .is("deleted_at", null)
@@ -130,6 +130,34 @@ export default async function DashboardPage() {
               {profile.status === "approved" ? (
                 <ToggleProfileVisibilityButton initialHidden={profile.is_hidden_by_owner} />
               ) : null}
+            </div>
+
+            <div className="mt-5 border-t border-white/10 pt-5">
+              {profile.is_verified ? (
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-sm font-bold text-emerald-300">
+                    ✓ Identity verified
+                  </span>
+                  <p className="text-sm text-[#a3808c]">
+                    People can see you&rsquo;re a real person behind the photos.
+                  </p>
+                </div>
+              ) : (
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="font-bold text-[#fbecef]">Not verified yet</p>
+                    <p className="mt-1 text-sm text-[#a3808c]">
+                      Verified profiles get a badge on Browse. Most people only reply to those.
+                    </p>
+                  </div>
+                  <a
+                    href="/dashboard/verify"
+                    className="rounded-full bg-gradient-to-r from-[#ff115a] to-[#c400ff] px-4 py-2 text-sm font-bold text-[#060002] shadow-[0_0_20px_rgba(255,17,90,0.4)] hover:opacity-90"
+                  >
+                    Get verified
+                  </a>
+                </div>
+              )}
             </div>
           </div>
         )}

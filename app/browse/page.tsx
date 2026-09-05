@@ -9,6 +9,7 @@ import { NG_TOP_STATES } from "@/lib/ngStates";
 
 type Profile = {
   username: string;
+  is_verified: boolean;
   display_name: string;
   gender: "female" | "male";
   orientation: "straight" | "gay" | "bisexual";
@@ -203,7 +204,7 @@ export default function Page() {
         // reaches the browser. It's still used as a sort tiebreaker below,
         // which happens server-side.
         .select(
-          "username, display_name, gender, orientation, age, city, area, bio, photo_url",
+          "username, display_name, gender, orientation, age, city, area, bio, photo_url, is_verified",
           { count: "exact" }
         )
         .eq("status", "approved")
@@ -360,6 +361,26 @@ export default function Page() {
         </div>
       </div>
 
+      <div className="mt-5 rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4">
+        <div className="flex items-start gap-3">
+          <span className="text-lg leading-none">⚠️</span>
+          <div>
+            <div className="text-sm font-bold text-amber-300">
+              Only trust profiles with the{" "}
+              <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.5 text-[11px] text-emerald-300">
+                ✓ Verified
+              </span>{" "}
+              badge
+            </div>
+            <p className="mt-1.5 text-sm text-[#e8d1d8]">
+              A verified badge means we&rsquo;ve checked that the person matches the photos on their
+              profile. Anyone without it is unverified &mdash; the photos may not be them. Meet in
+              public, never send money, and report anything that feels off.
+            </p>
+          </div>
+        </div>
+      </div>
+
       <div className="mt-5 grid gap-3 lg:grid-cols-3">
         <div className="rounded-2xl border border-[#ff115a]/25 bg-[#150109] p-4 lg:col-span-3">
           <div className="text-sm font-bold text-[#ff5f8f]">Use our AI search</div>
@@ -498,8 +519,18 @@ export default function Page() {
 
               <div className="p-3">
                 <div className="flex items-center justify-between gap-2">
-                  <div className="text-sm font-extrabold text-[#fbecef]">
-                    {p.display_name}
+                  <div className="flex min-w-0 items-center gap-1.5">
+                    <div className="truncate text-sm font-extrabold text-[#fbecef]">
+                      {p.display_name}
+                    </div>
+                    {p.is_verified ? (
+                      <span
+                        title="Identity verified"
+                        className="shrink-0 whitespace-nowrap rounded-full border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-bold text-emerald-300"
+                      >
+                        ✓ Verified
+                      </span>
+                    ) : null}
                   </div>
                   <div className="text-xs text-[#c9a7b3]">{p.age}</div>
                 </div>

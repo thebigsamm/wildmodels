@@ -21,6 +21,7 @@ type Profile = {
   whatsapp: string | null;
   telegram: string | null;
   interests: string[] | null;
+  is_verified: boolean;
 };
 
 function maskPhone(s: string) {
@@ -63,7 +64,7 @@ export default function ProfilePage() {
       const { data, error } = await supabase
         .from("profiles")
         .select(
-          "id, display_name, gender, orientation, age, city, area, bio, photo_url, whatsapp, telegram, interests"
+          "id, display_name, gender, orientation, age, city, area, bio, photo_url, whatsapp, telegram, interests, is_verified"
         )
         .eq("username", username)
         .eq("status", "approved")
@@ -208,6 +209,16 @@ export default function ProfilePage() {
           <h1 className="font-[family-name:var(--font-display)] text-4xl uppercase text-[#fbecef]">
             {p.display_name} <span className="text-[#ff5f8f] text-2xl">· {p.age}</span>
           </h1>
+
+          {p.is_verified ? (
+            <div className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-sm font-bold text-emerald-300">
+              ✓ Identity verified
+            </div>
+          ) : (
+            <div className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-bold text-amber-300">
+              Not verified — photos may not be this person
+            </div>
+          )}
           <p className="text-[#c9a7b3] mt-2 text-sm">
             {p.city}, {p.area} · {p.gender} · {p.orientation}
           </p>

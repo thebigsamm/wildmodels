@@ -43,6 +43,17 @@ type ReportRow = {
   } | null;
 };
 
+type VerificationRow = {
+  id: string;
+  code: string;
+  status: string;
+  submitted_at: string | null;
+  selfie_url: string | null;
+  username: string | null;
+  display_name: string | null;
+  profile_photo_url: string | null;
+};
+
 type AdminPhoto = {
   id: string;
   profile_id: string;
@@ -164,7 +175,7 @@ export default function AdminPage() {
   const [secret, setSecret] = useState("");
 
   // Tabs
-  const [tab, setTab] = useState<"reports" | "pending" | "all">("reports");
+  const [tab, setTab] = useState<"reports" | "pending" | "all" | "verification">("reports");
 
   // All profiles
   const [allRows, setAllRows] = useState<AllProfileRow[]>([]);
@@ -179,6 +190,10 @@ export default function AdminPage() {
   const [reportStatus, setReportStatus] = useState<"open" | "closed">("open");
   const [reports, setReports] = useState<ReportRow[]>([]);
   const [loadingReports, setLoadingReports] = useState(false);
+
+  // Verification queue
+  const [verifications, setVerifications] = useState<VerificationRow[]>([]);
+  const [loadingVerifications, setLoadingVerifications] = useState(false);
 
   // Photos moderation modal
   const [photoModalOpen, setPhotoModalOpen] = useState(false);
@@ -312,6 +327,47 @@ export default function AdminPage() {
     if (tab === "all") await loadAll();
     else if (tab === "pending") await loadPending();
     else await loadReports();
+  }
+
+  async function loadVerifications() {
+    if (!requireSecret()) return;
+
+    setLoadingVerifications(true);
+    const res = await fetch("/api/admin/verification/list", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ secret: secretTrim }),
+    });
+
+    const data = await res.json();
+    setLoadingVerifications(false);
+
+    if (!res.ok) {
+      setMsg(data.error || "Failed to load verification requests");
+      setVerifications([]);
+      return;
+    }
+
+    setVerifications((data.requests ?? []) as VerificationRow[]);
+  }
+
+  async function reviewVerification(requestId: string, decision: "approved" | "rejected") {
+    if (!requireSecret()) return;
+
+    const res = await fetch("/api/admin/verification/review", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ secret: secretTrim, requestId, decision }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      setMsg(data.error || "Failed");
+      return;
+    }
+
+    setMsg(decision === "approved" ? "Verified." : "Rejected.");
+    await loadVerifications();
   }
 
   async function loadReports(nextStatus?: "open" | "closed") {
@@ -637,6 +693,7 @@ export default function AdminPage() {
                 onClick={() => {
                   if (tab === "reports") loadReports();
                   else if (tab === "pending") loadPending();
+                  else if (tab === "verification") loadVerifications();
                   else loadAll();
                 }}
               >
@@ -647,12 +704,13 @@ export default function AdminPage() {
                   setRows([]);
                   setReports([]);
                   setAllRows([]);
+                  setVerifications([]);
                   setMsg(null);
                 }}
               >
                 Clear
               </Btn>
-              {loadingPending || loadingReports || loadingAll ? (
+              {loadingPending || loadingReports || loadingAll || loadingVerifications ? (
                 <span className="self-center text-sm text-[#c9a7b3]">Loading…</span>
               ) : null}
             </div>
@@ -683,6 +741,17 @@ export default function AdminPage() {
                 className={tab === "reports" ? "!border-[#ff115a] !bg-[#ff115a] !text-white" : ""}
               >
                 Reports
+              </Btn>
+              <Btn
+                onClick={() => {
+                  setTab("verification");
+                  if (verifications.length === 0) loadVerifications();
+                }}
+                className={
+                  tab === "verification" ? "!border-[#ff115a] !bg-[#ff115a] !text-white" : ""
+                }
+              >
+                Verification
               </Btn>
             </div>
           </div>
@@ -1037,6 +1106,105 @@ export default function AdminPage() {
                 );
               })}
             </div>
+          </div>
+        ) : null}
+
+        {/* VERIFICATION TAB */}
+        {tab === "verification" ? (
+          <div className="rounded-2xl border border-white/10 bg-[#150109] p-4">
+            <div className="grid gap-1">
+              <h2 className="text-lg font-bold text-[#fbecef]">Verification Queue</h2>
+              <div className="text-sm text-[#8f6b78]">
+                Approve only if the face matches the profile photos and the handwritten code
+                matches exactly. The selfie is deleted as soon as you decide.
+              </div>
+            </div>
+
+            {verifications.length === 0 ? (
+              <div className="mt-4 text-sm text-[#8f6b78]">
+                {loadingVerifications ? "Loading…" : "Nothing waiting for review."}
+              </div>
+            ) : (
+              <div className="mt-4 grid gap-4">
+                {verifications.map((v) => (
+                  <div key={v.id} className="rounded-xl border border-white/10 p-3">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <div className="font-bold text-[#fbecef]">
+                          {v.display_name ?? "—"}{" "}
+                          <span className="text-sm font-normal text-[#8f6b78]">
+                            @{v.username ?? "—"}
+                          </span>
+                        </div>
+                        <div className="mt-1 text-xs text-[#8f6b78]">
+                          Submitted{" "}
+                          {v.submitted_at ? new Date(v.submitted_at).toLocaleString() : "—"}
+                        </div>
+                      </div>
+                      <div className="rounded-lg border border-[#ff115a]/40 bg-[#220413] px-4 py-2 font-mono text-xl tracking-[0.25em] text-[#ff5f8f]">
+                        {v.code}
+                      </div>
+                    </div>
+
+                    <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                      <div>
+                        <div className="mb-1 text-xs font-bold uppercase tracking-wide text-[#8f6b78]">
+                          Selfie holding the code
+                        </div>
+                        {v.selfie_url ? (
+                          <a href={v.selfie_url} target="_blank" rel="noreferrer">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={v.selfie_url}
+                              alt="verification selfie"
+                              className="w-full rounded-lg border border-white/10 object-contain"
+                            />
+                          </a>
+                        ) : (
+                          <div className="text-sm text-[#8f6b78]">No photo.</div>
+                        )}
+                      </div>
+
+                      <div>
+                        <div className="mb-1 text-xs font-bold uppercase tracking-wide text-[#8f6b78]">
+                          Profile photo
+                        </div>
+                        {v.profile_photo_url ? (
+                          <div>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={v.profile_photo_url}
+                              alt="profile"
+                              className="w-full rounded-lg border border-white/10 object-contain"
+                            />
+                          </div>
+                        ) : (
+                          <div className="text-sm text-[#8f6b78]">No profile photo.</div>
+                        )}
+                        {v.username ? (
+                          <Link
+                            href={`/profile/${v.username}`}
+                            target="_blank"
+                            className="mt-2 inline-block text-sm font-semibold text-[#ff5f8f] hover:text-[#fbecef]"
+                          >
+                            Open full profile →
+                          </Link>
+                        ) : null}
+                      </div>
+                    </div>
+
+                    <div className="mt-3 flex flex-wrap gap-2 border-t border-white/10 pt-3">
+                      <Btn tone="primary" onClick={() => reviewVerification(v.id, "approved")}>
+                        Approve &amp; verify
+                      </Btn>
+                      <Btn tone="danger" onClick={() => reviewVerification(v.id, "rejected")}>
+                        Reject
+                      </Btn>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         ) : null}
       </div>
