@@ -44,36 +44,21 @@ export default function RegisterPage() {
       return;
     }
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-
-    if (error) {
-      setLoading(false);
-      setMessage(error.message);
-      return;
-    }
-
-    if (!data.user) {
-      setLoading(false);
-      setMessage("Account created. Check your email to confirm, then log in.");
-      return;
-    }
-
-    const claimRes = await fetch("/api/auth/claim-username", {
+    // Registration runs server-side so the account and its username are
+    // created together, using the id Supabase returns rather than one the
+    // browser supplies.
+    const res = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: data.user.id, username: normalizedUsername }),
+      body: JSON.stringify({ email, password, username: normalizedUsername }),
     });
-    const claimData = await claimRes.json();
+
+    const data = await res.json();
 
     setLoading(false);
 
-    if (!claimRes.ok) {
-      setMessage(
-        `Account created, but your username couldn't be saved: ${claimData.error || "unknown error"}. You can still log in with your email.`
-      );
+    if (!res.ok) {
+      setMessage(data.error || "Couldn't create your account. Please try again.");
       return;
     }
 
