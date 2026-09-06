@@ -43,6 +43,61 @@ type ReportRow = {
   } | null;
 };
 
+type Analytics = {
+  viewsReady: boolean;
+  viewsError: string | null;
+  totals: {
+    accounts: number;
+    profiles: number;
+    approved: number;
+    live: number;
+    pending: number;
+    rejected: number;
+    verified: number;
+    hiddenByOwner: number;
+    suspended: number;
+  };
+  moderation: {
+    approvalRate: number | null;
+    lockedOut: number;
+    medianHoursToApproval: number | null;
+  };
+  verification: {
+    verified: number;
+    awaitingReview: number;
+    codeIssued: number;
+    approved: number;
+    rejected: number;
+  };
+  demographics: {
+    gender: Record<string, number>;
+    orientation: Record<string, number>;
+    ageBuckets: Record<string, number>;
+    topStates: { label: string; count: number }[];
+  };
+  safety: { reportsOpen: number; reportsClosed: number; blocks: number };
+  views: {
+    totalViews: number;
+    totalReveals: number;
+    byVerified: {
+      isVerified: boolean;
+      profiles: number;
+      views: number;
+      contactReveals: number;
+      viewsPerProfile: number;
+    }[];
+    top: {
+      username: string;
+      display_name: string;
+      is_verified: boolean;
+      views: number;
+      contact_reveals: number;
+    }[];
+  };
+  timeline: { day: string; accounts: number; profiles: number; views: number; reveals: number }[];
+  windowDays: number;
+};
+
 type VerificationRow = {
   id: string;
   code: string;
@@ -139,6 +194,89 @@ function Badge({
   );
 }
 
+function Stat({
+  label,
+  value,
+  hint,
+}: {
+  label: string;
+  value: string | number;
+  hint?: string;
+}) {
+  return (
+    <div className="rounded-xl border border-white/10 bg-[#220413] p-3">
+      <div className="text-[11px] font-semibold uppercase tracking-wide text-[#8f6b78]">
+        {label}
+      </div>
+      <div className="mt-1 text-2xl font-extrabold text-[#fbecef]">{value}</div>
+      {hint ? <div className="mt-0.5 text-xs text-[#8f6b78]">{hint}</div> : null}
+    </div>
+  );
+}
+
+function BarList({ rows }: { rows: { label: string; count: number }[] }) {
+  const max = Math.max(1, ...rows.map((r) => r.count));
+
+  if (rows.length === 0) {
+    return <div className="text-sm text-[#8f6b78]">No data yet.</div>;
+  }
+
+  return (
+    <div className="grid gap-1.5">
+      {rows.map((r) => (
+        <div key={r.label} className="grid grid-cols-[92px_1fr_36px] items-center gap-2 text-sm">
+          <div className="truncate capitalize text-[#c9a7b3]">{r.label}</div>
+          <div className="h-2 rounded-full bg-white/5">
+            <div
+              className="h-2 rounded-full bg-gradient-to-r from-[#ff115a] to-[#c400ff]"
+              style={{ width: `${(r.count / max) * 100}%` }}
+            />
+          </div>
+          <div className="text-right font-bold text-[#fbecef]">{r.count}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function DayChart({
+  rows,
+  metric,
+  label,
+}: {
+  rows: { day: string; accounts: number; profiles: number; views: number; reveals: number }[];
+  metric: "accounts" | "profiles" | "views" | "reveals";
+  label: string;
+}) {
+  const max = Math.max(1, ...rows.map((r) => r[metric]));
+  const total = rows.reduce((sum, r) => sum + r[metric], 0);
+
+  return (
+    <div>
+      <div className="flex items-baseline justify-between gap-2">
+        <div className="text-[11px] font-semibold uppercase tracking-wide text-[#8f6b78]">
+          {label}
+        </div>
+        <div className="text-sm font-extrabold text-[#fbecef]">{total}</div>
+      </div>
+      <div className="mt-2 flex h-14 items-end gap-[2px]">
+        {rows.map((r) => (
+          <div
+            key={r.day}
+            title={`${r.day}: ${r[metric]}`}
+            className="min-h-[2px] flex-1 rounded-sm bg-gradient-to-t from-[#ff115a] to-[#c400ff]"
+            style={{ height: `${(r[metric] / max) * 100}%` }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function toRows(counts: Record<string, number>) {
+  return Object.entries(counts).map(([label, count]) => ({ label, count }));
+}
+
 function Btn({
   children,
   onClick,
@@ -175,7 +313,7 @@ export default function AdminPage() {
   const [secret, setSecret] = useState("");
 
   // Tabs
-  const [tab, setTab] = useState<"reports" | "pending" | "all" | "verification">("reports");
+  const [tab, setTab] = useState<"reports" | "pending" | "all" | "verification" | "analytics">("reports");
 
   // All profiles
   const [allRows, setAllRows] = useState<AllProfileRow[]>([]);
@@ -190,6 +328,10 @@ export default function AdminPage() {
   const [reportStatus, setReportStatus] = useState<"open" | "closed">("open");
   const [reports, setReports] = useState<ReportRow[]>([]);
   const [loadingReports, setLoadingReports] = useState(false);
+
+  // Analytics
+  const [analytics, setAnalytics] = useState<Analytics | null>(null);
+  const [loadingAnalytics, setLoadingAnalytics] = useState(false);
 
   // Verification queue
   const [verifications, setVerifications] = useState<VerificationRow[]>([]);
@@ -327,6 +469,28 @@ export default function AdminPage() {
     if (tab === "all") await loadAll();
     else if (tab === "pending") await loadPending();
     else await loadReports();
+  }
+
+  async function loadAnalytics() {
+    if (!requireSecret()) return;
+
+    setLoadingAnalytics(true);
+    const res = await fetch("/api/admin/analytics", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ secret: secretTrim }),
+    });
+
+    const data = await res.json();
+    setLoadingAnalytics(false);
+
+    if (!res.ok) {
+      setMsg(data.error || "Failed to load analytics");
+      setAnalytics(null);
+      return;
+    }
+
+    setAnalytics(data as Analytics);
   }
 
   async function loadVerifications() {
@@ -694,6 +858,7 @@ export default function AdminPage() {
                   if (tab === "reports") loadReports();
                   else if (tab === "pending") loadPending();
                   else if (tab === "verification") loadVerifications();
+                  else if (tab === "analytics") loadAnalytics();
                   else loadAll();
                 }}
               >
@@ -705,12 +870,13 @@ export default function AdminPage() {
                   setReports([]);
                   setAllRows([]);
                   setVerifications([]);
+                  setAnalytics(null);
                   setMsg(null);
                 }}
               >
                 Clear
               </Btn>
-              {loadingPending || loadingReports || loadingAll || loadingVerifications ? (
+              {loadingPending || loadingReports || loadingAll || loadingVerifications || loadingAnalytics ? (
                 <span className="self-center text-sm text-[#c9a7b3]">Loading…</span>
               ) : null}
             </div>
@@ -752,6 +918,15 @@ export default function AdminPage() {
                 }
               >
                 Verification
+              </Btn>
+              <Btn
+                onClick={() => {
+                  setTab("analytics");
+                  if (!analytics) loadAnalytics();
+                }}
+                className={tab === "analytics" ? "!border-[#ff115a] !bg-[#ff115a] !text-white" : ""}
+              >
+                Analytics
               </Btn>
             </div>
           </div>
@@ -1107,6 +1282,211 @@ export default function AdminPage() {
               })}
             </div>
           </div>
+        ) : null}
+
+        {/* ANALYTICS TAB */}
+        {tab === "analytics" ? (
+          !analytics ? (
+            <div className="rounded-2xl border border-white/10 bg-[#150109] p-4 text-sm text-[#8f6b78]">
+              {loadingAnalytics
+                ? "Loading…"
+                : "Enter your admin secret, then hit Refresh current tab."}
+            </div>
+          ) : (
+            <div className="grid gap-4">
+              <div className="grid gap-2.5 sm:grid-cols-3 lg:grid-cols-5">
+                <Stat label="Accounts" value={analytics.totals.accounts} />
+                <Stat
+                  label="Profiles"
+                  value={analytics.totals.profiles}
+                  hint={`${analytics.totals.accounts - analytics.totals.profiles} account(s) with none`}
+                />
+                <Stat label="Live on Browse" value={analytics.totals.live} />
+                <Stat
+                  label="Verified"
+                  value={analytics.totals.verified}
+                  hint={
+                    analytics.totals.approved
+                      ? `${Math.round((analytics.totals.verified / analytics.totals.approved) * 100)}% of approved`
+                      : undefined
+                  }
+                />
+                <Stat label="Pending review" value={analytics.totals.pending} />
+              </div>
+
+              <div className="rounded-2xl border border-white/10 bg-[#150109] p-4">
+                <h2 className="text-lg font-bold text-[#fbecef]">
+                  Last {analytics.windowDays} days
+                </h2>
+                <div className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                  <DayChart rows={analytics.timeline} metric="accounts" label="New accounts" />
+                  <DayChart rows={analytics.timeline} metric="profiles" label="New profiles" />
+                  <DayChart rows={analytics.timeline} metric="views" label="Profile views" />
+                  <DayChart rows={analytics.timeline} metric="reveals" label="Contact reveals" />
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-white/10 bg-[#150109] p-4">
+                <div className="flex items-baseline justify-between gap-3">
+                  <h2 className="text-lg font-bold text-[#fbecef]">Is the badge working?</h2>
+                  <span className="text-xs text-[#8f6b78]">views per profile</span>
+                </div>
+
+                {!analytics.viewsReady ? (
+                  <p className="mt-3 text-sm text-amber-300">
+                    {analytics.viewsError} Run{" "}
+                    <code className="text-[#ff5f8f]">scripts/add_analytics.sql</code> in Supabase.
+                  </p>
+                ) : analytics.views.totalViews === 0 ? (
+                  <p className="mt-3 text-sm text-[#8f6b78]">
+                    No views recorded yet. This fills in as people browse.
+                  </p>
+                ) : (
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                    {[true, false].map((flag) => {
+                      const row = analytics.views.byVerified.find((r) => r.isVerified === flag);
+                      return (
+                        <div
+                          key={String(flag)}
+                          className="rounded-xl border border-white/10 bg-[#220413] p-3"
+                        >
+                          <div
+                            className={
+                              flag
+                                ? "text-sm font-bold text-emerald-300"
+                                : "text-sm font-bold text-[#c9a7b3]"
+                            }
+                          >
+                            {flag ? "✓ Verified" : "Unverified"}
+                          </div>
+                          <div className="mt-1 text-2xl font-extrabold text-[#fbecef]">
+                            {row ? row.viewsPerProfile.toFixed(1) : "0.0"}
+                          </div>
+                          <div className="mt-0.5 text-xs text-[#8f6b78]">
+                            {row?.views ?? 0} views across {row?.profiles ?? 0} profile(s) ·{" "}
+                            {row?.contactReveals ?? 0} contact reveals
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              <div className="grid gap-4 lg:grid-cols-2">
+                <div className="rounded-2xl border border-white/10 bg-[#150109] p-4">
+                  <h2 className="text-lg font-bold text-[#fbecef]">Moderation</h2>
+                  <div className="mt-3 grid gap-2.5 sm:grid-cols-3">
+                    <Stat
+                      label="Approval rate"
+                      value={
+                        analytics.moderation.approvalRate === null
+                          ? "—"
+                          : `${Math.round(analytics.moderation.approvalRate * 100)}%`
+                      }
+                    />
+                    <Stat
+                      label="Median wait"
+                      value={
+                        analytics.moderation.medianHoursToApproval === null
+                          ? "—"
+                          : `${analytics.moderation.medianHoursToApproval.toFixed(1)}h`
+                      }
+                      hint="signup to approval"
+                    />
+                    <Stat label="Locked out" value={analytics.moderation.lockedOut} />
+                  </div>
+                  <div className="mt-3 grid gap-2.5 sm:grid-cols-3">
+                    <Stat label="Rejected" value={analytics.totals.rejected} />
+                    <Stat label="Hidden by owner" value={analytics.totals.hiddenByOwner} />
+                    <Stat label="Suspended" value={analytics.totals.suspended} />
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-white/10 bg-[#150109] p-4">
+                  <h2 className="text-lg font-bold text-[#fbecef]">Verification &amp; safety</h2>
+                  <div className="mt-3 grid gap-2.5 sm:grid-cols-3">
+                    <Stat label="Awaiting review" value={analytics.verification.awaitingReview} />
+                    <Stat label="Code issued" value={analytics.verification.codeIssued} />
+                    <Stat label="Rejected" value={analytics.verification.rejected} />
+                  </div>
+                  <div className="mt-3 grid gap-2.5 sm:grid-cols-3">
+                    <Stat label="Open reports" value={analytics.safety.reportsOpen} />
+                    <Stat label="Closed reports" value={analytics.safety.reportsClosed} />
+                    <Stat
+                      label="Blocks"
+                      value={analytics.safety.blocks}
+                      hint="a rising number is a warning"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid gap-4 lg:grid-cols-2">
+                <div className="rounded-2xl border border-white/10 bg-[#150109] p-4">
+                  <h2 className="text-lg font-bold text-[#fbecef]">Who&rsquo;s on the platform</h2>
+                  <div className="mt-3 grid gap-4">
+                    <div>
+                      <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-[#8f6b78]">
+                        Gender
+                      </div>
+                      <BarList rows={toRows(analytics.demographics.gender)} />
+                    </div>
+                    <div>
+                      <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-[#8f6b78]">
+                        Preference
+                      </div>
+                      <BarList rows={toRows(analytics.demographics.orientation)} />
+                    </div>
+                    <div>
+                      <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-[#8f6b78]">
+                        Age
+                      </div>
+                      <BarList rows={toRows(analytics.demographics.ageBuckets)} />
+                    </div>
+                    <div>
+                      <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-[#8f6b78]">
+                        Top states
+                      </div>
+                      <BarList rows={analytics.demographics.topStates} />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-white/10 bg-[#150109] p-4">
+                  <h2 className="text-lg font-bold text-[#fbecef]">Most viewed</h2>
+                  {!analytics.viewsReady || analytics.views.top.length === 0 ? (
+                    <p className="mt-3 text-sm text-[#8f6b78]">Nothing to rank yet.</p>
+                  ) : (
+                    <div className="mt-3 grid gap-2">
+                      {analytics.views.top.map((p) => (
+                        <div
+                          key={p.username}
+                          className="flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-[#220413] px-3 py-2"
+                        >
+                          <div className="flex min-w-0 items-center gap-2">
+                            <span className="truncate text-sm font-bold text-[#fbecef]">
+                              {p.display_name}
+                            </span>
+                            {p.is_verified ? (
+                              <span className="shrink-0 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-bold text-emerald-300">
+                                ✓
+                              </span>
+                            ) : null}
+                            <span className="truncate text-xs text-[#8f6b78]">@{p.username}</span>
+                          </div>
+                          <div className="shrink-0 text-sm text-[#c9a7b3]">
+                            <span className="font-bold text-[#fbecef]">{p.views}</span> views ·{" "}
+                            {p.contact_reveals} reveals
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )
         ) : null}
 
         {/* VERIFICATION TAB */}

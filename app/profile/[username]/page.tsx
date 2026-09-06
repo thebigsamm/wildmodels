@@ -101,6 +101,28 @@ export default function ProfilePage() {
     })();
   }, []);
 
+  // Fire-and-forget. The server drops self-views, blocked pairs, and repeats
+  // from the same person on the same day.
+  useEffect(() => {
+    if (!username || !p) return;
+
+    fetch("/api/views/record", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, event: "view" }),
+    }).catch(() => {});
+  }, [username, p]);
+
+  function revealContact() {
+    setShowContact(true);
+
+    fetch("/api/views/record", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, event: "contact_reveal" }),
+    }).catch(() => {});
+  }
+
   async function blockUser() {
     if (!username) return;
 
@@ -248,7 +270,7 @@ export default function ProfilePage() {
                 {!showContact ? (
                   <button
                     className="rounded-full bg-gradient-to-r from-[#ff115a] to-[#c400ff] px-4 py-2 text-sm font-extrabold text-[#060002] hover:opacity-90"
-                    onClick={() => setShowContact(true)}
+                    onClick={revealContact}
                   >
                     Show full
                   </button>
