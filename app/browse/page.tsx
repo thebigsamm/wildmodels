@@ -361,18 +361,18 @@ export default function Page() {
         </div>
       </div>
 
-      <div className="mt-5 rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4">
-        <div className="flex items-start gap-3">
-          <span className="text-lg leading-none">⚠️</span>
+      <div className="mt-4 rounded-xl border border-amber-500/40 bg-amber-500/10 px-3.5 py-2.5">
+        <div className="flex items-start gap-2.5">
+          <span className="text-base leading-tight">⚠️</span>
           <div>
-            <div className="text-sm font-bold text-amber-300">
+            <div className="text-[13px] font-bold text-amber-300">
               Only trust profiles with the{" "}
-              <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.5 text-[11px] text-emerald-300">
+              <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.5 text-[10px] text-emerald-300">
                 ✓ Verified
               </span>{" "}
               badge
             </div>
-            <p className="mt-1.5 text-sm text-[#e8d1d8]">
+            <p className="mt-1 text-xs leading-relaxed text-[#e8d1d8]">
               A verified badge means we&rsquo;ve checked that the person matches the photos on their
               profile. Anyone without it is unverified.
             </p>
@@ -380,37 +380,46 @@ export default function Page() {
         </div>
       </div>
 
-      <div className="mt-5 grid gap-3 lg:grid-cols-3">
-        <div className="rounded-2xl border border-[#ff115a]/25 bg-[#150109] p-4 lg:col-span-3">
-          <div className="text-sm font-bold text-[#ff5f8f]">Use our AI search</div>
-          <div className="mt-2 flex gap-2 flex-wrap">
-            <input
-              className="min-w-[240px] flex-1 rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef] placeholder:text-[#8f6b78]"
-              placeholder='Try: "female lagos lekki 18-25"'
-              value={ai}
-              onChange={(e) => setAi(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") applyAi();
-              }}
-            />
-            <button
-              className="rounded-lg border border-white/10 bg-[#220413] px-3 py-2 text-[#fbecef] hover:bg-white/5"
-              onClick={applyAi}
-            >
-              Apply
-            </button>
-            <button
-              className="rounded-lg border border-white/10 bg-[#220413] px-3 py-2 text-[#fbecef] hover:bg-white/5"
-              onClick={clearFilters}
-            >
-              Clear
-            </button>
+      <div className="mt-4 grid gap-2.5 lg:grid-cols-3">
+        <div className="min-w-0 rounded-xl border border-[#ff115a]/25 bg-[#150109] px-3.5 py-2.5 lg:col-span-3">
+          <div className="flex flex-wrap items-center gap-2">
+            {/* w-full drops the label to its own line on phones and lets the
+                controls have the next one; from sm up it sits inline and the
+                whole card is a single row. */}
+            <div className="w-full shrink-0 text-xs font-bold text-[#ff5f8f] sm:w-auto">
+              Use our AI search
+            </div>
+            {/* One unit, so the buttons never wrap away from the input. min-w-0
+                keeps this from widening the grid track and overflowing. */}
+            <div className="flex min-w-0 flex-1 gap-2">
+              <input
+                className="min-w-0 flex-1 rounded-lg border border-white/10 bg-[#220413] px-3 py-1.5 text-sm text-[#fbecef] placeholder:text-[#8f6b78]"
+                placeholder='Try: "female lagos lekki 18-25"'
+                value={ai}
+                onChange={(e) => setAi(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") applyAi();
+                }}
+              />
+              <button
+                className="shrink-0 rounded-lg border border-white/10 bg-[#220413] px-3 py-1.5 text-sm text-[#fbecef] hover:bg-white/5"
+                onClick={applyAi}
+              >
+                Apply
+              </button>
+              <button
+                className="shrink-0 rounded-lg border border-white/10 bg-[#220413] px-3 py-1.5 text-sm text-[#fbecef] hover:bg-white/5"
+                onClick={clearFilters}
+              >
+                Clear
+              </button>
+            </div>
           </div>
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex gap-2.5">
           <select
-            className="w-full min-w-0 rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef]"
+            className="w-full min-w-0 rounded-lg border border-white/10 bg-[#220413] px-3 py-1.5 text-sm text-[#fbecef]"
             value={gender}
             onChange={(e) => setGender(e.target.value as any)}
           >
@@ -420,7 +429,7 @@ export default function Page() {
           </select>
 
           <select
-            className="w-full min-w-0 rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef]"
+            className="w-full min-w-0 rounded-lg border border-white/10 bg-[#220413] px-3 py-1.5 text-sm text-[#fbecef]"
             value={orientation}
             onChange={(e) => setOrientation(e.target.value as any)}
           >
@@ -431,9 +440,9 @@ export default function Page() {
           </select>
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex gap-2.5">
           <select
-            className="w-full min-w-0 rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef]"
+            className="w-full min-w-0 rounded-lg border border-white/10 bg-[#220413] px-3 py-1.5 text-sm text-[#fbecef]"
             value={city}
             onChange={(e) => setCity(e.target.value)}
           >
@@ -445,16 +454,16 @@ export default function Page() {
           </select>
 
           <input
-            className="w-full min-w-0 rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef] placeholder:text-[#8f6b78]"
+            className="w-full min-w-0 rounded-lg border border-white/10 bg-[#220413] px-3 py-1.5 text-sm text-[#fbecef] placeholder:text-[#8f6b78]"
             placeholder="Area (e.g., Lekki)"
             value={area}
             onChange={(e) => setArea(e.target.value)}
           />
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex gap-2.5">
           <input
-            className="w-full min-w-0 rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef] placeholder:text-[#8f6b78]"
+            className="w-full min-w-0 rounded-lg border border-white/10 bg-[#220413] px-3 py-1.5 text-sm text-[#fbecef] placeholder:text-[#8f6b78]"
             type="number"
             min={18}
             max={99}
@@ -464,7 +473,7 @@ export default function Page() {
           />
 
           <input
-            className="w-full min-w-0 rounded-lg border border-white/10 bg-[#220413] p-2 text-[#fbecef] placeholder:text-[#8f6b78]"
+            className="w-full min-w-0 rounded-lg border border-white/10 bg-[#220413] px-3 py-1.5 text-sm text-[#fbecef] placeholder:text-[#8f6b78]"
             type="number"
             min={18}
             max={99}
@@ -474,7 +483,7 @@ export default function Page() {
           />
         </div>
 
-        <div className="rounded-lg border border-white/10 bg-[#220413] p-2 text-sm text-[#c9a7b3]">
+        <div className="rounded-lg border border-white/10 bg-[#220413] px-3 py-1.5 text-[13px] text-[#c9a7b3]">
           Showing <span className="font-bold text-[#ff5f8f]">{profiles.length}</span> of{" "}
           <span className="font-bold text-[#ff5f8f]">{total}</span> profiles
         </div>
@@ -490,7 +499,7 @@ export default function Page() {
       ) : null}
 
       {!loading && !errorMsg ? (
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {profiles.map((p, i) => (
             <Link
               key={p.username}
