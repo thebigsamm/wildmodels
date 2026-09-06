@@ -94,10 +94,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: updateErr.message }, { status: 400 });
     }
 
+    // Only on the first submission. `request.status` was read before the
+    // update above, so "pending" means nothing had been uploaded yet -
+    // replacing a photo on an already-submitted request stays silent.
+    const isFirstSubmission = request.status === "pending";
+
     // Best effort - a failed receipt email shouldn't fail the upload the user
     // just made.
     try {
-      if (user.email) {
+      if (isFirstSubmission && user.email) {
         const { data: profile } = await supabaseAdmin
           .from("profiles")
           .select("display_name")
