@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { createRouteHandlerClient } from "@/lib/supabase/server-action";
+import { resend } from "@/lib/resend";
+import { verificationSubmittedEmail } from "@/lib/emails/verification";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -90,6 +92,32 @@ export async function POST(req: NextRequest) {
 
     if (updateErr) {
       return NextResponse.json({ error: updateErr.message }, { status: 400 });
+    }
+
+    // Best effort - a failed receipt email shouldn't fail the upload the user
+    // just made.
+    try {
+      if (user.email) {
+        const { data: profile } = await supabaseAdmin
+          .from("profiles")
+          .select("display_name")
+          .eq("user_id", user.id)
+          .is("deleted_at", null)
+          .maybeSingle();
+
+        const { subject, html } = verificationSubmittedEmail({
+          displayName: profile?.display_name ?? "",
+        });
+
+        await resend.emails.send({
+          from: "WildModels <no-reply@wildmodels.xyz>",
+          to: [user.email],
+          subject,
+          html,
+        });
+      }
+    } catch (emailErr) {
+      console.error("Failed to send verification receipt email:", emailErr);
     }
 
     return NextResponse.json({ ok: true });

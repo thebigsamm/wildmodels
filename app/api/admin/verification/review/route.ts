@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { assertAdminSecret } from "@/lib/admin";
+import { resend } from "@/lib/resend";
+import {
+  verificationApprovedEmail,
+  verificationRejectedEmail,
+} from "@/lib/emails/verification";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -59,6 +64,38 @@ export async function POST(req: Request) {
     // photos around after the decision is made.
     if (request.photo_path) {
       await supabaseAdmin.storage.from("verification-photos").remove([request.photo_path]);
+    }
+
+    // Best effort - a failed notification shouldn't fail the decision itself.
+    try {
+      const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(request.user_id);
+      const email = authUser?.user?.email;
+
+      if (email) {
+        const { data: profile } = await supabaseAdmin
+          .from("profiles")
+          .select("display_name, username")
+          .eq("user_id", request.user_id)
+          .is("deleted_at", null)
+          .maybeSingle();
+
+        const { subject, html } =
+          decision === "approved"
+            ? verificationApprovedEmail({
+                displayName: profile?.display_name ?? "",
+                username: profile?.username ?? "",
+              })
+            : verificationRejectedEmail({ displayName: profile?.display_name ?? "" });
+
+        await resend.emails.send({
+          from: "WildModels <no-reply@wildmodels.xyz>",
+          to: [email],
+          subject,
+          html,
+        });
+      }
+    } catch (emailErr) {
+      console.error("Failed to send verification decision email:", emailErr);
     }
 
     return NextResponse.json({ ok: true });
