@@ -20,132 +20,6 @@ type Profile = {
   photo_url: string | null;
 };
 
-// Launch cities (your list)
-const LAUNCH_CITIES = ["Lagos", "Abuja", "Port Harcourt", "Ibadan", "Benin City", "Enugu"] as const;
-
-// “AI” parsing helpers
-const CITY_ALIASES: Record<string, string> = {
-  lagos: "Lagos",
-  fct: "Abuja",
-  "f.c.t": "Abuja",
-  kano: "Kano",
-  katsina: "Katsina",
-  kaduna: "Kaduna",
-  oyo: "Oyo",
-  anambra: "Anambra",
-  rivers: "Rivers",
-  "port harcourt": "Rivers",
-  "p.h": "Rivers",
-  ph: "Rivers",
-  niger: "Niger",
-  benue: "Benue",
-  ogun: "Ogun",
-  sokoto: "Sokoto",
-  delta: "Delta",
-  imo: "Imo",
-  ondo: "Ondo",
-  "akwa ibom": "Akwa Ibom",
-  edo: "Edo",
-  enugu: "Enugu",
-  bayelsa: "Bayelsa",
-  "cross river": "Cross River",
-  kogi: "Kogi",
-  abia: "Abia",
-};
-
-const AREA_KEYWORDS = [
-  // Lagos
-  "lekki",
-  "ajah",
-  "ikeja",
-  "yaba",
-  "surulere",
-  "victoria island",
-  "vi",
-  "v.i",
-  "ikoyi",
-  "maryland",
-  // Abuja
-  "wuse",
-  "garki",
-  "gwarinpa",
-  "maitama",
-  "asokoro",
-  // PH
-  "gra",
-  "rumuola",
-  "rumuokoro",
-  // General
-  "new haven",
-  "trans ekulu",
-];
-
-function titleCase(s: string) {
-  return s
-    .trim()
-    .split(/\s+/)
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
-}
-
-function normalizeArea(raw: string) {
-  const t = raw.toLowerCase().trim();
-  if (t === "vi" || t === "v.i") return "Victoria Island";
-  return titleCase(t);
-}
-
-function parseAiQuery(input: string) {
-  const text = input.toLowerCase().trim();
-
-  let gender: "female" | "male" | null = null;
-  let orientation: "straight" | "gay" | "bisexual" | null = null;
-  let city: string | null = null;
-  let area: string | null = null;
-  let minAge: number | null = null;
-  let maxAge: number | null = null;
-
-  // gender
-  if (/\b(female|woman|women|girl|girls|lady|ladies)\b/.test(text)) gender = "female";
-  if (/\b(male|man|men|guy|guys|boy|boys)\b/.test(text)) gender = "male";
-
-  // orientation
-  if (/\b(straight)\b/.test(text)) orientation = "straight";
-  if (/\b(gay)\b/.test(text)) orientation = "gay";
-  if (/\b(bisexual|bi)\b/.test(text)) orientation = "bisexual";
-
-  // age range e.g. "18-25"
-  const range = text.match(/(\d{2})\s*-\s*(\d{2})/);
-  if (range) {
-    minAge = Number(range[1]);
-    maxAge = Number(range[2]);
-  } else {
-    // single age e.g. "23"
-    const single = text.match(/\b(1[89]|[2-9]\d)\b/);
-    if (single) {
-      minAge = Number(single[1]);
-      maxAge = Number(single[1]);
-    }
-  }
-
-  // city aliases
-  for (const [k, v] of Object.entries(CITY_ALIASES)) {
-    if (text.includes(k)) {
-      city = v;
-      break;
-    }
-  }
-
-  // area keywords
-  for (const a of AREA_KEYWORDS) {
-    if (text.includes(a)) {
-      area = normalizeArea(a);
-      break;
-    }
-  }
-
-  return { gender, orientation, city, area, minAge, maxAge };
-}
-
 const PAGE_SIZE = 24;
 
 /** Escape LIKE wildcards so a typed "%" searches for a literal "%". */
@@ -168,7 +42,6 @@ export default function Page() {
   const [hasProfile, setHasProfile] = useState(false);
 
   // Filters
-  const [ai, setAi] = useState("");
   const [gender, setGender] = useState<"all" | Profile["gender"]>("all");
   const [orientation, setOrientation] = useState<"all" | Profile["orientation"]>("all");
   const [city, setCity] = useState<string>("all");
@@ -297,22 +170,17 @@ export default function Page() {
     })();
   }, [supabase]);
 
-  // Build city dropdown from your launch cities + whatever exists in DB
   const cityOptions = ["all", ...NG_TOP_STATES] as const;
 
-  function applyAi() {
-    const parsed = parseAiQuery(ai);
-
-    if (parsed.gender) setGender(parsed.gender);
-    if (parsed.orientation) setOrientation(parsed.orientation);
-    if (parsed.city) setCity(parsed.city);
-    if (parsed.area) setArea(parsed.area);
-    if (parsed.minAge !== null) setMinAge(parsed.minAge);
-    if (parsed.maxAge !== null) setMaxAge(parsed.maxAge);
-  }
+  const hasActiveFilters =
+    gender !== "all" ||
+    orientation !== "all" ||
+    city !== "all" ||
+    area.trim() !== "" ||
+    minAge !== "" ||
+    maxAge !== "";
 
   function clearFilters() {
-    setAi("");
     setGender("all");
     setOrientation("all");
     setCity("all");
@@ -381,42 +249,6 @@ export default function Page() {
       </div>
 
       <div className="mt-4 grid gap-2.5 lg:grid-cols-3">
-        <div className="min-w-0 rounded-xl border border-[#ff115a]/25 bg-[#150109] px-3.5 py-2.5 lg:col-span-3">
-          <div className="flex flex-wrap items-center gap-2">
-            {/* w-full drops the label to its own line on phones and lets the
-                controls have the next one; from sm up it sits inline and the
-                whole card is a single row. */}
-            <div className="w-full shrink-0 text-xs font-bold text-[#ff5f8f] sm:w-auto">
-              Use our AI search
-            </div>
-            {/* One unit, so the buttons never wrap away from the input. min-w-0
-                keeps this from widening the grid track and overflowing. */}
-            <div className="flex min-w-0 flex-1 gap-2">
-              <input
-                className="min-w-0 flex-1 rounded-lg border border-white/10 bg-[#220413] px-3 py-1.5 text-sm text-[#fbecef] placeholder:text-[#8f6b78]"
-                placeholder='Try: "female lagos lekki 18-25"'
-                value={ai}
-                onChange={(e) => setAi(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") applyAi();
-                }}
-              />
-              <button
-                className="shrink-0 rounded-lg border border-white/10 bg-[#220413] px-3 py-1.5 text-sm text-[#fbecef] hover:bg-white/5"
-                onClick={applyAi}
-              >
-                Apply
-              </button>
-              <button
-                className="shrink-0 rounded-lg border border-white/10 bg-[#220413] px-3 py-1.5 text-sm text-[#fbecef] hover:bg-white/5"
-                onClick={clearFilters}
-              >
-                Clear
-              </button>
-            </div>
-          </div>
-        </div>
-
         <div className="flex gap-2.5">
           <select
             className="w-full min-w-0 rounded-lg border border-white/10 bg-[#220413] px-3 py-1.5 text-sm text-[#fbecef]"
@@ -483,9 +315,19 @@ export default function Page() {
           />
         </div>
 
-        <div className="rounded-lg border border-white/10 bg-[#220413] px-3 py-1.5 text-[13px] text-[#c9a7b3]">
-          Showing <span className="font-bold text-[#ff5f8f]">{profiles.length}</span> of{" "}
-          <span className="font-bold text-[#ff5f8f]">{total}</span> profiles
+        <div className="flex min-w-0 items-center gap-2.5">
+          <div className="min-w-0 flex-1 rounded-lg border border-white/10 bg-[#220413] px-3 py-1.5 text-[13px] text-[#c9a7b3]">
+            Showing <span className="font-bold text-[#ff5f8f]">{profiles.length}</span> of{" "}
+            <span className="font-bold text-[#ff5f8f]">{total}</span> profiles
+          </div>
+          {hasActiveFilters ? (
+            <button
+              className="shrink-0 rounded-lg border border-white/10 bg-[#220413] px-3 py-1.5 text-[13px] text-[#fbecef] hover:bg-white/5"
+              onClick={clearFilters}
+            >
+              Clear
+            </button>
+          ) : null}
         </div>
       </div>
 
