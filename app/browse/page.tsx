@@ -374,8 +374,7 @@ export default function Page() {
             </div>
             <p className="mt-1.5 text-sm text-[#e8d1d8]">
               A verified badge means we&rsquo;ve checked that the person matches the photos on their
-              profile. Anyone without it is unverified &mdash; the photos may not be them. Meet in
-              public, never send money, and report anything that feels off.
+              profile. Anyone without it is unverified.
             </p>
           </div>
         </div>
